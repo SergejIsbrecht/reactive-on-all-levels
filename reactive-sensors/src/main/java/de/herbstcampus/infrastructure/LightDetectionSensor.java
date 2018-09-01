@@ -21,12 +21,14 @@ public final class LightDetectionSensor implements Sensor<LightDetectionType> {
         .sample(sampleRate)
         .map(
             floats -> {
-              if (floats.length > 1) {
+              if (floats.length != 1) {
                 return LightDetectionType.INVALID;
               }
 
               float ambientLightValue = floats[0];
-              if (ambientLightValue > 0.8) {
+              if (ambientLightValue <= 0.0f || ambientLightValue > 1.0f) {
+                return LightDetectionType.INVALID;
+              } else if (ambientLightValue > 0.8) {
                 return LightDetectionType.DETECTED;
               } else if (Float.isNaN(ambientLightValue)) {
                 return LightDetectionType.INVALID;
