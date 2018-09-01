@@ -1,6 +1,6 @@
 package de.herbstcampus.model;
 
-public enum IdicatorType {
+public enum IndicatorType {
   OFF,
   LEFT,
   RIGHT

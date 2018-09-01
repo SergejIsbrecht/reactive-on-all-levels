@@ -32,10 +32,9 @@ final class SocketAcceptorImpl implements SocketAcceptor {
 
             // TODO: cache and multicast Topics
             Option<Topic<?>> topic = SocketAcceptorImpl.this.topics.find(t -> t.name().toLowerCase().equals(topicName));
-
             return topic
                 .map(t -> t.stream$().map(o -> DefaultPayload.create(o.toString())))
-                .getOrElse(Flux.error(new IllegalArgumentException("Unknown topic")));
+                .getOrElse(Flux.error(new IllegalArgumentException("[SERVER] Unknown topic")));
           }
         });
   }
