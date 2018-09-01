@@ -8,7 +8,6 @@ import reactor.core.publisher.Flux;
 @ParametersAreNonnullByDefault
 public final class SpeedTopic implements Topic<Double> {
   private static final long SAMPLE_RATE_SPEED = 500;
-  // TODO: inject sensor: Speed
   private final Flux<Double> speed$;
 
   public SpeedTopic(Sensor<Double> speed) {
