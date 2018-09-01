@@ -9,19 +9,30 @@ import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
 public final class LightDetectionSensor implements Sensor<LightDetectionType> {
-  private final SensorSampleFacade<LightDetectionType> sensorSampleFacade;
+  private final SensorSampleFacade<float[]> sensorSampleFacade;
 
   public LightDetectionSensor(RemoteSampleFacadeFactory facadeFactory) {
-    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("S2", "lejos.hardware.sensor.EV3ColorSensor", "ColorID");
+    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("S2", "lejos.hardware.sensor.EV3ColorSensor", "Ambient");
   }
 
   @Override
   public Flux<LightDetectionType> stream$(long sampleRate) {
-    return sensorSampleFacade.sample(
-        sampleRate,
-        floats -> {
-          // TODO: implement
-          return LightDetectionType.DETECTED;
-        });
+    return sensorSampleFacade
+        .sample(sampleRate)
+        .map(
+            floats -> {
+              if (floats.length > 1) {
+                return LightDetectionType.INVALID;
+              }
+
+              float ambientLightValue = floats[0];
+              if (ambientLightValue > 0.8) {
+                return LightDetectionType.DETECTED;
+              } else if (Float.isNaN(ambientLightValue)) {
+                return LightDetectionType.INVALID;
+              } else {
+                return LightDetectionType.NOT_DETECTED;
+              }
+            });
   }
 }

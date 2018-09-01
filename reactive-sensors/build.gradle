@@ -1,4 +1,6 @@
 dependencies {
   implementation project(":reactive-domain")
   implementation 'com.github.bdeneuter:lejos-ev3-api:0.9.1-beta'
+
+  testImplementation 'io.projectreactor:reactor-test:3.1.7.RELEASE'
 }

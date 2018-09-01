@@ -11,7 +11,7 @@ public final class SpeedTopic implements Topic<Double> {
   private final Flux<Double> speed$;
 
   public SpeedTopic(Sensor<Double> speed) {
-    this.speed$ = Objects.requireNonNull(speed).stream$(SAMPLE_RATE_SPEED).distinctUntilChanged().publish().refCount();
+    this.speed$ = Objects.requireNonNull(speed).stream$(SAMPLE_RATE_SPEED).distinctUntilChanged().replay(1).refCount();
   }
 
   @Override
