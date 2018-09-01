@@ -8,17 +8,17 @@ import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
 public final class IndicatorSensor implements Sensor<IndicatorType> {
-  private final SampleFacade<IndicatorType> sampleFacade;
+  private final MotorSampleFacade<IndicatorType> sensorSampleFacade;
 
   public IndicatorSensor(RemoteSampleFacadeFactory facadeFactory) {
-    this.sampleFacade = Objects.requireNonNull(facadeFactory).create("", "", "");
+    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("A", 'M');
   }
 
   @Override
   public Flux<IndicatorType> stream$(long sampleRate) {
-    return sampleFacade.sample(
+    return sensorSampleFacade.sample(
         sampleRate,
-        floats -> {
+        motorEvent -> {
           // TODO: IMPLEMENT
           return IndicatorType.LEFT;
         });

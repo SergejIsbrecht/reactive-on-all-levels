@@ -8,15 +8,15 @@ import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
 public final class HighBeamAssistantSensor implements Sensor<ActivityState> {
-  private final SampleFacade<ActivityState> sampleFacade;
+  private final SensorSampleFacade<ActivityState> sensorSampleFacade;
 
   public HighBeamAssistantSensor(RemoteSampleFacadeFactory facadeFactory) {
-    this.sampleFacade = Objects.requireNonNull(facadeFactory).create("", "", "");
+    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("S1", "lejos.hardware.sensor.EV3TouchSensor", "Touch");
   }
 
   @Override
   public Flux<ActivityState> stream$(long sampleRate) {
-    return sampleFacade.sample(
+    return sensorSampleFacade.sample(
         sampleRate,
         floats -> {
           // TODO: implement

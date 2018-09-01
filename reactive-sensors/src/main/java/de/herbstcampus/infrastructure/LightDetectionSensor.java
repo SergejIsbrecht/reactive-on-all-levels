@@ -8,15 +8,15 @@ import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
 public final class LightDetectionSensor implements Sensor<LightDetectionType> {
-  private final SampleFacade<LightDetectionType> sampleFacade;
+  private final SensorSampleFacade<LightDetectionType> sensorSampleFacade;
 
   public LightDetectionSensor(RemoteSampleFacadeFactory facadeFactory) {
-    this.sampleFacade = Objects.requireNonNull(facadeFactory).create("", "", "");
+    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("S2", "lejos.hardware.sensor.EV3ColorSensor", "ColorID");
   }
 
   @Override
   public Flux<LightDetectionType> stream$(long sampleRate) {
-    return sampleFacade.sample(
+    return sensorSampleFacade.sample(
         sampleRate,
         floats -> {
           // TODO: implement

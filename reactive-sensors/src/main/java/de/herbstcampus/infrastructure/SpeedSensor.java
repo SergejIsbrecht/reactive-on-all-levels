@@ -7,17 +7,17 @@ import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
 public final class SpeedSensor implements Sensor<Double> {
-  private final SampleFacade<Double> sampleFacade;
+  private final MotorSampleFacade<Double> sensorSampleFacade;
 
   public SpeedSensor(RemoteSampleFacadeFactory facadeFactory) {
-    this.sampleFacade = Objects.requireNonNull(facadeFactory).create("", "", "");
+    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("D", 'L');
   }
 
   @Override
   public Flux<Double> stream$(long sampleRate) {
-    return sampleFacade.sample(
+    return sensorSampleFacade.sample(
         sampleRate,
-        floats -> {
+        motorEvent -> {
           // TODO: implement
           return -1d;
         });
