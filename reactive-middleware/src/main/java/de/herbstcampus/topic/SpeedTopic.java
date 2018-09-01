@@ -8,13 +8,11 @@ import reactor.core.publisher.Flux;
 @ParametersAreNonnullByDefault
 public final class SpeedTopic implements Topic<Double> {
   private static final long SAMPLE_RATE_SPEED = 500;
-  private final Sensor<Double> speed;
   // TODO: inject sensor: Speed
   private final Flux<Double> speed$;
 
   public SpeedTopic(Sensor<Double> speed) {
-    this.speed = Objects.requireNonNull(speed);
-    this.speed$ = this.speed.stream$(SAMPLE_RATE_SPEED).publish().refCount();
+    this.speed$ = Objects.requireNonNull(speed).stream$(SAMPLE_RATE_SPEED).distinctUntilChanged().publish().refCount();
   }
 
   @Override

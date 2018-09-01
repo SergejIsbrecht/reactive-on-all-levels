@@ -8,6 +8,14 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public final class Server {
   static void main(String[] args) {
+    // create SensorFacade
+
+    // get sensors
+
+    // build topics
+
+    // add topics to socketAcceptor
+
     NettyContextCloseable localhost =
         RSocketFactory.receive() //
             .acceptor(new SocketAcceptorImpl(null))

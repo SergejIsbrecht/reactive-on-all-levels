@@ -10,12 +10,10 @@ import reactor.core.publisher.Flux;
 public final class IndicatorTopic implements Topic<IndicatorType> {
   private static final long INDICATOR_SAMPLE_RATE = 100L;
 
-  private final Sensor<IndicatorType> indicatorSensor;
   private final Flux<IndicatorType> indicator$;
 
   public IndicatorTopic(Sensor<IndicatorType> indicatorSensor) {
-    this.indicatorSensor = Objects.requireNonNull(indicatorSensor);
-    this.indicator$ = indicatorSensor.stream$(INDICATOR_SAMPLE_RATE).publish().refCount();
+    this.indicator$ = Objects.requireNonNull(indicatorSensor).stream$(INDICATOR_SAMPLE_RATE).distinctUntilChanged().publish().refCount();
   }
 
   @Override

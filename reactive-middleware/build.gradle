@@ -1,8 +1,6 @@
 dependencies {
   implementation project(":reactive-domain")
 
-  api 'io.vavr:vavr:0.9.2'
-
   implementation 'io.rsocket:rsocket-core:0.11.5'
   implementation 'io.rsocket:rsocket-transport-netty:0.11.5'
   implementation 'io.rsocket:rsocket-transport-local:0.11.5'

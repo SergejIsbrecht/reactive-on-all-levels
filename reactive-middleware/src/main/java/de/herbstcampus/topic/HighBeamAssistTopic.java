@@ -25,7 +25,7 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
     this.lightDetection = Objects.requireNonNull(lightDetection);
     this.highBeamAssistantState = Objects.requireNonNull(highBeamAssistantState);
 
-    this.highBeamState$ = composedState$().publish().refCount();
+    this.highBeamState$ = composedState$().distinctUntilChanged().publish().refCount();
   }
 
   @Override
