@@ -8,10 +8,12 @@ import io.vavr.control.Try;
 import java.time.Duration;
 import javax.annotation.ParametersAreNonnullByDefault;
 import lejos.remote.ev3.RMIRegulatedMotor;
+import lejos.remote.ev3.RMISampleProvider;
 import lejos.remote.ev3.RemoteEV3;
 import lejos.robotics.RegulatedMotor;
 import lejos.robotics.RegulatedMotorListener;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 @ParametersAreNonnullByDefault
@@ -26,79 +28,79 @@ class RemoteSampleFacadeFactory {
 
   <T> MotorSampleFacade<T> sampleRegulatedMotor(String portName, char motorType) {
     return (sampleRate, mapper) -> {
-      Try<RMIRegulatedMotor> motor = ev3.get().map(remoteEV3 -> remoteEV3.createRegulatedMotor(portName, motorType));
-      return motor
-          .map(
-              rmiRegulatedMotor -> {
-                Flux<T> motorEvent$ =
-                    // TODO: sampleRate for Listener-Callback
-                    Flux.<MotorEvent>create(
-                            fluxSink -> {
-                              RegulatedMotorListener regulatedMotorListener =
-                                  new RegulatedMotorListener() {
-                                    @Override
-                                    public void rotationStarted(RegulatedMotor motor, int tachoCount, boolean stalled, long timeStamp) {
-                                      fluxSink.next(
-                                          ImmutableMotorEvent.builder()
-                                              .stalled(stalled)
-                                              .tachoCount(tachoCount)
-                                              .timeStamp(timeStamp)
-                                              .type(MotorRotationType.STARTED)
-                                              .build());
-                                    }
+      Mono<RMIRegulatedMotor> connection =
+          Mono.defer(() -> ev3.get().map(remoteEV3 -> remoteEV3.createRegulatedMotor(portName, motorType)).map(Mono::just).getOrElseGet(Mono::error))
+              .timeout(Duration.ofMillis(1_000), intervalScheduler);
 
-                                    @Override
-                                    public void rotationStopped(RegulatedMotor motor, int tachoCount, boolean stalled, long timeStamp) {
-                                      fluxSink.next(
-                                          ImmutableMotorEvent.builder()
-                                              .stalled(stalled)
-                                              .tachoCount(tachoCount)
-                                              .timeStamp(timeStamp)
-                                              .type(MotorRotationType.STOPPED)
-                                              .build());
-                                    }
-                                  };
+      return connection.flatMapMany(
+          rmiRegulatedMotor -> {
+            Flux<T> motorEvent$ =
+                // TODO: sampleRate for Listener-Callback
+                Flux.<MotorEvent>create(
+                        fluxSink -> {
+                          RegulatedMotorListener regulatedMotorListener =
+                              new RegulatedMotorListener() {
+                                private ImmutableMotorEvent.Builder builder = ImmutableMotorEvent.builder();
 
-                              try {
-                                rmiRegulatedMotor.addListener(regulatedMotorListener);
-                              } catch (Exception ex) {
-                                fluxSink.error(ex);
-                              }
+                                @Override
+                                public void rotationStarted(RegulatedMotor motor, int tachoCount, boolean stalled, long timeStamp) {
+                                  fluxSink.next(
+                                      builder.stalled(stalled).tachoCount(tachoCount).timeStamp(timeStamp).type(MotorRotationType.STARTED).build());
+                                }
 
-                              fluxSink.onCancel(
-                                  () -> {
-                                    try {
-                                      rmiRegulatedMotor.removeListener();
-                                    } catch (Exception ex) {
-                                      fluxSink.error(ex);
-                                    }
-                                  });
-                            })
-                        .map(mapper);
+                                @Override
+                                public void rotationStopped(RegulatedMotor motor, int tachoCount, boolean stalled, long timeStamp) {
+                                  fluxSink.next(
+                                      builder.stalled(stalled).tachoCount(tachoCount).timeStamp(timeStamp).type(MotorRotationType.STOPPED).build());
+                                }
+                              };
 
-                return motorEvent$;
-              })
-          .getOrElseGet(Flux::error);
+                          try {
+                            rmiRegulatedMotor.addListener(regulatedMotorListener);
+                          } catch (Exception ex) {
+                            fluxSink.error(ex);
+                          }
+
+                          fluxSink.onCancel(
+                              () -> {
+                                try {
+                                  rmiRegulatedMotor.removeListener();
+                                } catch (Exception ex) {
+                                  fluxSink.error(ex);
+                                }
+                              });
+                        })
+                    .map(mapper);
+
+            return motorEvent$;
+          });
     };
   }
 
   <T> SensorSampleFacade<T> sampleSensor(String portName, String sensorName, String modeName) {
-    return (sampleRate, mapper) ->
-        ev3.get()
-            .map(remoteEV3 -> remoteEV3.createSampleProvider(portName, sensorName, modeName))
-            .map(
-                provider -> {
-                  return Flux.interval(Duration.ofMillis(sampleRate), intervalScheduler)
-                      .flatMap(
-                          aLong -> {
-                            Try<T> map = Try.of(provider::fetchSample).map(mapper);
-                            if (map.isSuccess()) {
-                              return Flux.just(map.get());
-                            } else {
-                              return Flux.error(map.getCause());
-                            }
-                          });
-                })
-            .getOrElseGet(Flux::error);
+    return (sampleRate, mapper) -> {
+      Mono<RMISampleProvider> connection =
+          Mono.defer(
+                  () ->
+                      ev3.get()
+                          .map(remoteEV3 -> remoteEV3.createSampleProvider(portName, sensorName, modeName))
+                          .map(Mono::just)
+                          .getOrElseGet(Mono::error))
+              .timeout(Duration.ofMillis(1_000), intervalScheduler);
+
+      return connection.flatMapMany(
+          provider -> {
+            return Flux.interval(Duration.ofMillis(sampleRate), intervalScheduler)
+                .flatMap(
+                    aLong -> {
+                      Try<T> map = Try.of(provider::fetchSample).map(mapper);
+                      if (map.isSuccess()) {
+                        return Flux.just(map.get());
+                      } else {
+                        return Flux.error(map.getCause());
+                      }
+                    });
+          });
+    };
   }
 }
