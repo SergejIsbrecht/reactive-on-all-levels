@@ -13,12 +13,12 @@ import reactor.core.scheduler.Schedulers;
 @ParametersAreNonnullByDefault
 public final class Server {
   static void main(String[] args) {
-    SampleFacadeFactory sampleFacadeFactory = new SampleFacadeFactory("192.168.1.1", Schedulers.single());
+    RemoteSampleFacadeFactory remoteSampleFacadeFactory = new RemoteSampleFacadeFactory("192.168.1.1", Schedulers.single());
 
-    SpeedSensor speedSensor = new SpeedSensor(sampleFacadeFactory);
-    LightDetectionSensor lightDetectionSensor = new LightDetectionSensor(sampleFacadeFactory);
-    HighBeamAssistantSensor highBeamAssistantSensor = new HighBeamAssistantSensor(sampleFacadeFactory);
-    IndicatorSensor indicatorSensor = new IndicatorSensor(sampleFacadeFactory);
+    SpeedSensor speedSensor = new SpeedSensor(remoteSampleFacadeFactory);
+    LightDetectionSensor lightDetectionSensor = new LightDetectionSensor(remoteSampleFacadeFactory);
+    HighBeamAssistantSensor highBeamAssistantSensor = new HighBeamAssistantSensor(remoteSampleFacadeFactory);
+    IndicatorSensor indicatorSensor = new IndicatorSensor(remoteSampleFacadeFactory);
 
     // build topics
     HighBeamAssistTopic highBeamAssistTopic = new HighBeamAssistTopic(speedSensor, lightDetectionSensor, highBeamAssistantSensor);

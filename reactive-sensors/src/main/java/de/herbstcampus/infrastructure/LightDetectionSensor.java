@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 public final class LightDetectionSensor implements Sensor<LightDetectionType> {
   private final SampleFacade<LightDetectionType> sampleFacade;
 
-  public LightDetectionSensor(SampleFacadeFactory facadeFactory) {
+  public LightDetectionSensor(RemoteSampleFacadeFactory facadeFactory) {
     this.sampleFacade = Objects.requireNonNull(facadeFactory).create("", "", "");
   }
 

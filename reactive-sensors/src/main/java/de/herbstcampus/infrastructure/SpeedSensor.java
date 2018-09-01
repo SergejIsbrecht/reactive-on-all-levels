@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 public final class SpeedSensor implements Sensor<Double> {
   private final SampleFacade<Double> sampleFacade;
 
-  public SpeedSensor(SampleFacadeFactory facadeFactory) {
+  public SpeedSensor(RemoteSampleFacadeFactory facadeFactory) {
     this.sampleFacade = Objects.requireNonNull(facadeFactory).create("", "", "");
   }
 

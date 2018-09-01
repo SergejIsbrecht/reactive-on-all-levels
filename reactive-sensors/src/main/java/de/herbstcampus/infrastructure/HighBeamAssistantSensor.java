@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 public final class HighBeamAssistantSensor implements Sensor<ActivityState> {
   private final SampleFacade<ActivityState> sampleFacade;
 
-  public HighBeamAssistantSensor(SampleFacadeFactory facadeFactory) {
+  public HighBeamAssistantSensor(RemoteSampleFacadeFactory facadeFactory) {
     this.sampleFacade = Objects.requireNonNull(facadeFactory).create("", "", "");
   }
 
