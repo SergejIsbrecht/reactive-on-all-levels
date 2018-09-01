@@ -22,8 +22,9 @@ public final class IndicatorSensor implements Sensor<IndicatorType> {
         .sample(sampleRate)
         .map(
             motorEvent -> {
+              System.out.println("[SENSOR][IndicatorSensor] " + sampleRate);
               // TODO: IMPLEMENT
-              return IndicatorType.LEFT;
+              return IndicatorType.OFF;
             });
   }
 }

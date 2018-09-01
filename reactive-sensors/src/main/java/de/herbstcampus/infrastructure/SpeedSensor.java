@@ -21,6 +21,8 @@ public final class SpeedSensor implements Sensor<Double> {
         .sample(sampleRate)
         .map(
             motorEvent -> {
+              System.out.println("[SENSOR][SpeedSensor] " + sampleRate);
+
               // TODO: implement
               return -1d;
             });
