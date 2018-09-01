@@ -1,6 +1,7 @@
 package de.herbstcampus.infrastructure;
 
 import de.herbstcampus.api.Sensor;
+import de.herbstcampus.api.SensorSampleFacade;
 import de.herbstcampus.model.ActivityState;
 import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;

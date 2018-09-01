@@ -1,5 +1,6 @@
 package de.herbstcampus.infrastructure;
 
+import de.herbstcampus.api.MotorSampleFacade;
 import de.herbstcampus.api.Sensor;
 import de.herbstcampus.model.IndicatorType;
 import java.util.Objects;

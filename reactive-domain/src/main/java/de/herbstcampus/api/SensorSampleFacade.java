@@ -1,4 +1,4 @@
-package de.herbstcampus.infrastructure;
+package de.herbstcampus.api;
 
 import java.util.function.Function;
 import reactor.core.publisher.Flux;

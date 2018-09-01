@@ -1,4 +1,4 @@
-package de.herbstcampus.infrastructure;
+package de.herbstcampus.api;
 
 import de.herbstcampus.model.MotorEvent;
 import java.util.function.Function;

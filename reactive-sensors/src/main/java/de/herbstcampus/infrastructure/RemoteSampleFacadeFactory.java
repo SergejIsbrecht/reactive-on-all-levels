@@ -1,5 +1,7 @@
 package de.herbstcampus.infrastructure;
 
+import de.herbstcampus.api.MotorSampleFacade;
+import de.herbstcampus.api.SensorSampleFacade;
 import de.herbstcampus.model.ImmutableMotorEvent;
 import de.herbstcampus.model.MotorEvent;
 import de.herbstcampus.model.MotorRotationType;
