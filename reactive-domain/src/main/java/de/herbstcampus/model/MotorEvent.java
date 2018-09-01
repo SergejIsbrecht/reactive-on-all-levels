@@ -11,4 +11,10 @@ public interface MotorEvent {
   boolean stalled();
 
   long timeStamp();
+
+  int limitAngle();
+
+  int speed();
+
+  int rotationSpeed();
 }

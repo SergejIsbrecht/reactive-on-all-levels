@@ -45,12 +45,38 @@ class RemoteSampleFacadeFactory {
 
                         @Override
                         public void rotationStarted(RegulatedMotor motor, int tachoCount, boolean stalled, long timeStamp) {
-                          fluxSink.next(builder.stalled(stalled).tachoCount(tachoCount).timeStamp(timeStamp).type(MotorRotationType.STARTED).build());
+                          int limitAngle = motor.getLimitAngle();
+                          int speed = motor.getSpeed();
+                          int rotationSpeed = motor.getRotationSpeed();
+
+                          fluxSink.next(
+                              builder
+                                  .stalled(stalled)
+                                  .tachoCount(tachoCount)
+                                  .timeStamp(timeStamp)
+                                  .type(MotorRotationType.STARTED)
+                                  .limitAngle(limitAngle)
+                                  .speed(speed)
+                                  .rotationSpeed(rotationSpeed)
+                                  .build());
                         }
 
                         @Override
                         public void rotationStopped(RegulatedMotor motor, int tachoCount, boolean stalled, long timeStamp) {
-                          fluxSink.next(builder.stalled(stalled).tachoCount(tachoCount).timeStamp(timeStamp).type(MotorRotationType.STOPPED).build());
+                          int limitAngle = motor.getLimitAngle();
+                          int speed = motor.getSpeed();
+                          int rotationSpeed = motor.getRotationSpeed();
+
+                          fluxSink.next(
+                              builder
+                                  .stalled(stalled)
+                                  .tachoCount(tachoCount)
+                                  .timeStamp(timeStamp)
+                                  .type(MotorRotationType.STOPPED)
+                                  .limitAngle(limitAngle)
+                                  .speed(speed)
+                                  .rotationSpeed(rotationSpeed)
+                                  .build());
                         }
                       };
 
