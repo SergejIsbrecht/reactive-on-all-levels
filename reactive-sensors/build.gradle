@@ -1,0 +1,25 @@
+plugins {
+  id "com.github.bdeneuter.mindstorms.ev3" version "1.2.0"
+}
+
+mindstorms {
+  // Your Java main class (the class with the method: public static void main(String ... args))
+  main = 'com.github.bdeneuter.mindstorms.samples.HelloWorld'
+
+  // Optional: The IP address from the EV3 brick. Default value is 10.0.1.1
+  ip = '10.0.1.1'
+
+  // Optional: the user for the EV3 brick. Default value is root
+  user = 'root'
+
+  // Optional: the password for the user of the EV3 brick (Don't check in paswords in repositories! If you use a password, put it in the gradle.properties in your GRADLE_HOME and assign the variable to the password field. Default value is none
+  password = ''
+
+  // Optional: the directory on the EV3 brick where the applications will be stored. Default is /home/lejos/programs
+  home = '/home/lejos/programs'
+}
+
+dependencies {
+  implementation project(":reactive-domain")
+  implementation 'com.github.bdeneuter:lejos-ev3-api:0.9.1-beta'
+}

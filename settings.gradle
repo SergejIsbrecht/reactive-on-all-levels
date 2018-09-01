@@ -1,0 +1,5 @@
+rootProject.name = 'reactive-on-all-levels'
+
+include 'reactive-domain'
+include 'reactive-middleware'
+include 'reactive-sensors'

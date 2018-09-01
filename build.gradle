@@ -1,0 +1,27 @@
+plugins {
+  id 'java-library'
+}
+
+group 'de.herbstcampus'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+subprojects {
+  apply plugin: 'java-library'
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
+    testCompile('org.junit.jupiter:junit-jupiter-api:5.2.0')
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.2.0')
+  }
+
+  test {
+    useJUnitPlatform()
+  }
+}
