@@ -10,8 +10,8 @@ import reactor.core.publisher.Flux;
 public final class IndicatorSensor implements Sensor<IndicatorType> {
   private final SampleFacade<IndicatorType> sampleFacade;
 
-  public IndicatorSensor(SampleFacade<IndicatorType> sampleFacade) {
-    this.sampleFacade = Objects.requireNonNull(sampleFacade);
+  public IndicatorSensor(SampleFacadeFactory facadeFactory) {
+    this.sampleFacade = Objects.requireNonNull(facadeFactory).create("", "", "");
   }
 
   @Override

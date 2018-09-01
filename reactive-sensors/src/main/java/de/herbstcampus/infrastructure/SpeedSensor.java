@@ -9,8 +9,8 @@ import reactor.core.publisher.Flux;
 public final class SpeedSensor implements Sensor<Double> {
   private final SampleFacade<Double> sampleFacade;
 
-  public SpeedSensor(SampleFacade<Double> sampleFacade) {
-    this.sampleFacade = Objects.requireNonNull(sampleFacade);
+  public SpeedSensor(SampleFacadeFactory facadeFactory) {
+    this.sampleFacade = Objects.requireNonNull(facadeFactory).create("", "", "");
   }
 
   @Override

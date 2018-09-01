@@ -10,16 +10,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 
 @ParametersAreNonnullByDefault
-public final class SampleFacadeFactory<T> {
-  private final Scheduler scheduler;
+public final class SampleFacadeFactory {
+  private final Scheduler intervalScheduler;
   private final Lazy<Try<RemoteEV3>> ev3;
 
-  public SampleFacadeFactory(String ip, Scheduler scheduler) {
+  public SampleFacadeFactory(String ip, Scheduler intervalScheduler) {
     this.ev3 = Lazy.of(() -> Try.of(() -> new RemoteEV3(ip)));
-    this.scheduler = scheduler;
+    this.intervalScheduler = intervalScheduler;
   }
 
-  public SampleFacade<T> create(String portName, String sensorName, String modeName) {
+  public <T> SampleFacade<T> create(String portName, String sensorName, String modeName) {
     return new SampleFacade<T>() {
       @Override
       public Flux<T> sample(long sampleRate, Function<float[], T> mapper) {
@@ -30,7 +30,7 @@ public final class SampleFacadeFactory<T> {
                 })
             .map(
                 provider -> {
-                  return Flux.interval(Duration.ofMillis(sampleRate), scheduler)
+                  return Flux.interval(Duration.ofMillis(sampleRate), intervalScheduler)
                       .flatMap(
                           aLong -> {
                             Try<T> map = Try.of(provider::fetchSample).map(mapper);

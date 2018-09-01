@@ -30,7 +30,7 @@ final class SocketAcceptorImpl implements SocketAcceptor {
           public Flux<Payload> requestStream(Payload payload) {
             String topicName = payload.getDataUtf8();
 
-            // TODO: cache and multicast Topics
+            // TODO: cache and multi-cast Topics
             Option<Topic<?>> topic = SocketAcceptorImpl.this.topics.find(t -> t.name().toLowerCase().equals(topicName));
             return topic
                 .map(t -> t.stream$().map(o -> DefaultPayload.create(o.toString())))
