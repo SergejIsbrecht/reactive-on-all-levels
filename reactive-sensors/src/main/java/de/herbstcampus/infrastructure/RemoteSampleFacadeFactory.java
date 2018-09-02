@@ -1,7 +1,6 @@
 package de.herbstcampus.infrastructure;
 
-import de.herbstcampus.api.MotorSampleFacade;
-import de.herbstcampus.api.SensorSampleFacade;
+import de.herbstcampus.api.SampleFacade;
 import de.herbstcampus.model.ImmutableMotorEvent;
 import de.herbstcampus.model.MotorEvent;
 import de.herbstcampus.model.MotorRotationType;
@@ -28,7 +27,7 @@ class RemoteSampleFacadeFactory {
     this.intervalScheduler = intervalScheduler;
   }
 
-  MotorSampleFacade<MotorEvent> sampleRegulatedMotor(String portName, char motorType) {
+  SampleFacade<MotorEvent> sampleRegulatedMotor(String portName, char motorType) {
     return (sampleRate) -> {
       Mono<RMIRegulatedMotor> connection =
           Mono.defer(() -> ev3.get().map(remoteEV3 -> remoteEV3.createRegulatedMotor(portName, motorType)).map(Mono::just).getOrElseGet(Mono::error))
@@ -99,7 +98,7 @@ class RemoteSampleFacadeFactory {
     };
   }
 
-  SensorSampleFacade<float[]> sampleSensor(String portName, String sensorName, String modeName) {
+  SampleFacade<float[]> sampleSensor(String portName, String sensorName, String modeName) {
     return (sampleRate) -> {
       Mono<RMISampleProvider> connection =
           Mono.defer(

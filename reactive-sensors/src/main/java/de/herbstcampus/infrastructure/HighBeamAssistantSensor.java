@@ -1,7 +1,7 @@
 package de.herbstcampus.infrastructure;
 
+import de.herbstcampus.api.SampleFacade;
 import de.herbstcampus.api.Sensor;
-import de.herbstcampus.api.SensorSampleFacade;
 import de.herbstcampus.model.TouchType;
 import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
 public final class HighBeamAssistantSensor implements Sensor<TouchType> {
-  private final SensorSampleFacade<float[]> sensorSampleFacade;
+  private final SampleFacade<float[]> sensorSampleFacade;
 
   public HighBeamAssistantSensor(RemoteSampleFacadeFactory facadeFactory) {
     this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("S1", "lejos.hardware.sensor.EV3TouchSensor", "Touch");

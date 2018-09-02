@@ -1,11 +1,12 @@
 package de.herbstcampus.infrastructure;
 
-import de.herbstcampus.api.SensorSampleFacade;
+import de.herbstcampus.api.SampleFacade;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
 import io.rsocket.RSocketFactory;
 import io.rsocket.transport.netty.client.TcpClientTransport;
 import io.rsocket.util.DefaultPayload;
+import java.nio.FloatBuffer;
 import java.time.Duration;
 import lejos.hardware.port.Port;
 import lejos.hardware.port.SensorPort;
@@ -26,7 +27,7 @@ class RemoteSampleFacadeFactoryTest {
 
   @Test
   void name() {
-    SensorSampleFacade<float[]> sensorSampleFacade = classUnderTest.sampleSensor("S1", "lejos.hardware.sensor.EV3TouchSensor", "Touch");
+    SampleFacade<float[]> sensorSampleFacade = classUnderTest.sampleSensor("S1", "lejos.hardware.sensor.EV3TouchSensor", "Touch");
 
     Flux<float[]> sample = sensorSampleFacade.sample(100);
 
@@ -124,25 +125,40 @@ class RemoteSampleFacadeFactoryTest {
     RSocket socket = RSocketFactory.connect().transport(TcpClientTransport.create("10.0.1.1", 7000)).start().block();
 
     socket
-        .requestStream(DefaultPayload.create("Hello"))
-        .map(Payload::getDataUtf8)
-        .doOnNext(s -> System.out.println("SUB1: " + s))
+        .requestStream(DefaultPayload.create("COLOR,500"))
+        .map(Payload::getData)
+        .map(
+            byteBuffer -> {
+              FloatBuffer fb = byteBuffer.asFloatBuffer();
+              float[] floatArray = new float[fb.limit()];
+              fb.get(floatArray);
+
+              return floatArray;
+            })
+        .doOnNext(s -> System.out.println("SUB1: " + s[0]))
         .subscribeOn(Schedulers.single())
         .take(100)
-        .sample(Duration.ofSeconds(1))
-        .then()
+        .sample(Duration.ofMillis(100))
         .then()
         .subscribe();
 
     socket
-        .requestStream(DefaultPayload.create("Hello"))
-        .map(Payload::getDataUtf8)
-        .doOnNext(s -> System.out.println("SUB2: " + s))
-        .take(10_000)
+        .requestStream(DefaultPayload.create("INDICATOR,1000"))
+        .map(Payload::getData)
+        .map(
+            byteBuffer -> {
+              FloatBuffer fb = byteBuffer.asFloatBuffer();
+              float[] floatArray = new float[fb.limit()];
+              fb.get(floatArray);
+
+              return floatArray;
+            })
+        .doOnNext(s -> System.out.println("SUB2: " + s[0]))
+        .subscribeOn(Schedulers.single())
+        .take(100)
         .sample(Duration.ofSeconds(1))
         .then()
         .doFinally(signalType -> socket.dispose())
-        .then()
         .block();
   }
 }

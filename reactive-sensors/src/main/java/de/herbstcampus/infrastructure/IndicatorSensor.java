@@ -1,6 +1,6 @@
 package de.herbstcampus.infrastructure;
 
-import de.herbstcampus.api.MotorSampleFacade;
+import de.herbstcampus.api.SampleFacade;
 import de.herbstcampus.api.Sensor;
 import de.herbstcampus.model.IndicatorType;
 import de.herbstcampus.model.MotorEvent;
@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
 public final class IndicatorSensor implements Sensor<IndicatorType> {
-  private final MotorSampleFacade<MotorEvent> sensorSampleFacade;
+  private final SampleFacade<MotorEvent> sensorSampleFacade;
 
   public IndicatorSensor(RemoteSampleFacadeFactory facadeFactory) {
     this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("A", 'M');
