@@ -3,7 +3,6 @@ package de.herbstcampus.infrastructure;
 import de.herbstcampus.api.Sensor;
 import de.herbstcampus.api.SensorSampleFacade;
 import de.herbstcampus.model.TouchType;
-import io.vavr.collection.Array;
 import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
 import reactor.core.publisher.Flux;

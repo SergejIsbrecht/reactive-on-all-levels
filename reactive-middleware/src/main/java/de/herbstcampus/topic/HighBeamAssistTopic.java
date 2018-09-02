@@ -45,7 +45,7 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
                   }
                 });
 
-    // TODO: #autoConnect -1 is not a good idea, but persists state for now.
+    // TODO: #autoConnect 0 is not a good idea, but persists state for now.
     this.highBeamState$ = composedState$().distinctUntilChanged().replay(1).autoConnect(0);
   }
 
