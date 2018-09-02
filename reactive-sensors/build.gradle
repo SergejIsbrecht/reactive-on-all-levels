@@ -2,5 +2,9 @@ dependencies {
   implementation project(":reactive-domain")
   implementation 'com.github.bdeneuter:lejos-ev3-api:0.9.1-beta'
 
+  implementation 'io.rsocket:rsocket-core:0.11.5'
+  implementation 'io.rsocket:rsocket-transport-netty:0.11.5'
+
   testImplementation 'io.projectreactor:reactor-test:3.1.7.RELEASE'
+
 }

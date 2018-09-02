@@ -32,7 +32,7 @@ class RemoteSampleFacadeFactory {
     return (sampleRate) -> {
       Mono<RMIRegulatedMotor> connection =
           Mono.defer(() -> ev3.get().map(remoteEV3 -> remoteEV3.createRegulatedMotor(portName, motorType)).map(Mono::just).getOrElseGet(Mono::error))
-              .timeout(Duration.ofMillis(1_000), intervalScheduler);
+              .timeout(Duration.ofMillis(5_000), intervalScheduler);
 
       return connection.flatMapMany(
           rmiRegulatedMotor -> {
@@ -105,10 +105,21 @@ class RemoteSampleFacadeFactory {
           Mono.defer(
                   () ->
                       ev3.get()
-                          .map(remoteEV3 -> remoteEV3.createSampleProvider(portName, sensorName, modeName))
-                          .map(Mono::just)
+                          .map(
+                              remoteEV3 -> {
+                                return Mono.using(
+                                    () -> remoteEV3.createSampleProvider(portName, sensorName, modeName),
+                                    Mono::just,
+                                    rmiSampleProvider -> {
+                                      try {
+                                        rmiSampleProvider.close();
+                                      } catch (Exception ex) {
+                                        throw new RuntimeException(ex);
+                                      }
+                                    });
+                              })
                           .getOrElseGet(Mono::error))
-              .timeout(Duration.ofMillis(1_000), intervalScheduler);
+              .timeout(Duration.ofMillis(10_000), intervalScheduler);
 
       return connection.flatMapMany(
           provider -> {

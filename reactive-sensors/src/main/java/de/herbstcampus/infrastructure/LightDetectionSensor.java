@@ -19,6 +19,12 @@ public final class LightDetectionSensor implements Sensor<LightDetectionType> {
   public Flux<LightDetectionType> stream$(long sampleRate) {
     return sensorSampleFacade
         .sample(sampleRate)
+        .doOnNext(
+            floats -> {
+              for (float f : floats) {
+                System.out.println(String.valueOf(f));
+              }
+            })
         .map(
             floats -> {
               if (floats.length != 1) {
