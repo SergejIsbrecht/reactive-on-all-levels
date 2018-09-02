@@ -1,17 +1,16 @@
 package de.herbstcampus.infrastructure;
 
 import de.herbstcampus.api.SampleFacade;
-import de.herbstcampus.model.ImmutableMotorEvent;
 import de.herbstcampus.model.MotorEvent;
-import io.vavr.Lazy;
-import io.vavr.control.Try;
+import io.rsocket.Payload;
+import io.rsocket.RSocket;
+import io.rsocket.RSocketFactory;
+import io.rsocket.transport.netty.client.TcpClientTransport;
+import io.rsocket.util.DefaultPayload;
+import java.nio.FloatBuffer;
 import java.time.Duration;
+import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
-import lejos.remote.ev3.RMIRegulatedMotor;
-import lejos.remote.ev3.RMISampleProvider;
-import lejos.remote.ev3.RemoteEV3;
-import lejos.robotics.RegulatedMotor;
-import lejos.robotics.RegulatedMotorListener;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -19,93 +18,67 @@ import reactor.core.scheduler.Scheduler;
 @ParametersAreNonnullByDefault
 class RemoteSampleFacadeFactory {
   private final Scheduler intervalScheduler;
-  private final Lazy<Try<RemoteEV3>> ev3;
+  private final Mono<RSocket> socket;
 
   RemoteSampleFacadeFactory(String ip, Scheduler intervalScheduler) {
-    this.ev3 = Lazy.of(() -> Try.of(() -> new RemoteEV3(ip)));
-    this.intervalScheduler = intervalScheduler;
+    // "10.0.1.1"
+    this.socket =
+        RSocketFactory.connect()
+            .transport(TcpClientTransport.create(ip, 7000))
+            .start()
+            .timeout(Duration.ofSeconds(5), intervalScheduler)
+            .repeatWhenEmpty(
+                100,
+                longFlux -> {
+                  return longFlux.map(Duration::ofSeconds).switchMap(duration -> Flux.interval(duration, intervalScheduler).take(1));
+                })
+            .retryWhen(
+                throwableFlux -> {
+                  return throwableFlux
+                      .zipWith(Flux.range(1, 100), (throwable, integer) -> Duration.ofSeconds(integer))
+                      .flatMap(duration -> Flux.interval(duration, intervalScheduler).take(1));
+                })
+            .cache();
+    this.intervalScheduler = Objects.requireNonNull(intervalScheduler);
   }
 
-  SampleFacade<MotorEvent> sampleRegulatedMotor(String portName, char motorType) {
-    return (sampleRate) -> {
-      Mono<RMIRegulatedMotor> connection =
-          Mono.defer(() -> ev3.get().map(remoteEV3 -> remoteEV3.createRegulatedMotor(portName, motorType)).map(Mono::just).getOrElseGet(Mono::error))
-              .timeout(Duration.ofMillis(5_000), intervalScheduler);
-
-      return connection.flatMapMany(
-          rmiRegulatedMotor -> {
-            // TODO: sampleRate for Listener-Callback
-            return Flux.<MotorEvent>create(
-                fluxSink -> {
-                  RegulatedMotorListener regulatedMotorListener =
-                      new RegulatedMotorListener() {
-                        private ImmutableMotorEvent.Builder builder = ImmutableMotorEvent.builder();
-
-                        @Override
-                        public void rotationStarted(RegulatedMotor motor, int tachoCount, boolean stalled, long timeStamp) {
-                          fluxSink.next(builder.tachoCount(tachoCount).build());
-                        }
-
-                        @Override
-                        public void rotationStopped(RegulatedMotor motor, int tachoCount, boolean stalled, long timeStamp) {
-                          fluxSink.next(builder.tachoCount(tachoCount).build());
-                        }
-                      };
-
-                  try {
-                    rmiRegulatedMotor.addListener(regulatedMotorListener);
-                  } catch (Exception ex) {
-                    fluxSink.error(ex);
-                  }
-
-                  fluxSink.onCancel(
-                      () -> {
-                        try {
-                          rmiRegulatedMotor.removeListener();
-                        } catch (Exception ex) {
-                          fluxSink.error(ex);
-                        }
-                      });
-                });
-          });
+  SampleFacade<MotorEvent> sampleRegulatedMotor(String resourceName) {
+    return sampleRate -> {
+      sample(resourceName, sampleRate)
+          .map(
+              floats -> {
+                return null;
+              });
+      return null;
     };
   }
 
-  SampleFacade<float[]> sampleSensor(String portName, String sensorName, String modeName) {
-    return (sampleRate) -> {
-      Mono<RMISampleProvider> connection =
-          Mono.defer(
-                  () ->
-                      ev3.get()
-                          .map(
-                              remoteEV3 -> {
-                                return Mono.using(
-                                    () -> remoteEV3.createSampleProvider(portName, sensorName, modeName),
-                                    Mono::just,
-                                    rmiSampleProvider -> {
-                                      try {
-                                        rmiSampleProvider.close();
-                                      } catch (Exception ex) {
-                                        throw new RuntimeException(ex);
-                                      }
-                                    });
-                              })
-                          .getOrElseGet(Mono::error))
-              .timeout(Duration.ofMillis(10_000), intervalScheduler);
+  SampleFacade<float[]> sampleSensor(String resourceName) {
+    return sampleRate -> sample(resourceName, sampleRate);
+  }
 
-      return connection.flatMapMany(
-          provider -> {
-            return Flux.interval(Duration.ofMillis(sampleRate), intervalScheduler)
-                .flatMap(
-                    aLong -> {
-                      Try<float[]> map = Try.of(provider::fetchSample);
-                      if (map.isSuccess()) {
-                        return Flux.just(map.get());
-                      } else {
-                        return Flux.error(map.getCause());
-                      }
-                    });
-          });
-    };
+  private Flux<float[]> sample(String resourceName, long sampleRate) {
+    Flux<float[]> flux =
+        socket.flatMapMany(
+            rSocket -> {
+              return rSocket
+                  .requestStream(DefaultPayload.create(resourceName + "," + sampleRate))
+                  .map(Payload::getData)
+                  .map(
+                      byteBuffer -> {
+                        FloatBuffer fb = byteBuffer.asFloatBuffer();
+                        float[] floatArray = new float[fb.limit()];
+                        fb.get(floatArray);
+                        return floatArray;
+                      })
+                  .retryWhen(
+                      throwableFlux -> {
+                        return throwableFlux
+                            .zipWith(Flux.range(1, 100), (throwable, integer) -> Duration.ofSeconds(integer))
+                            .flatMap(duration -> Flux.interval(duration, intervalScheduler).take(1));
+                      })
+                  .subscribeOn(intervalScheduler);
+            });
+    return flux;
   }
 }
