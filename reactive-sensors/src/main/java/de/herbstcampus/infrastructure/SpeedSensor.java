@@ -12,7 +12,7 @@ public final class SpeedSensor implements Sensor<Double> {
   private final SampleFacade<MotorEvent> sensorSampleFacade;
 
   public SpeedSensor(RemoteSampleFacadeFactory facadeFactory) {
-    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("D", 'L');
+    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("SPEED");
   }
 
   @Override

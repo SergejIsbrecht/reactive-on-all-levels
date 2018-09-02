@@ -13,7 +13,7 @@ public final class IndicatorSensor implements Sensor<IndicatorType> {
   private final SampleFacade<MotorEvent> sensorSampleFacade;
 
   public IndicatorSensor(RemoteSampleFacadeFactory facadeFactory) {
-    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("A", 'M');
+    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("INDICATOR");
   }
 
   @Override

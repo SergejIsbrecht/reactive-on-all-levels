@@ -12,7 +12,7 @@ public final class LightDetectionSensor implements Sensor<LightDetectionType> {
   private final SampleFacade<float[]> sensorSampleFacade;
 
   public LightDetectionSensor(RemoteSampleFacadeFactory facadeFactory) {
-    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("S2", "lejos.hardware.sensor.EV3ColorSensor", "Ambient");
+    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("COLOR");
   }
 
   @Override

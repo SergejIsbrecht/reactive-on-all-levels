@@ -15,6 +15,7 @@ import lejos.remote.ev3.RemoteEV3;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 class RemoteSampleFacadeFactoryTest {
@@ -27,10 +28,8 @@ class RemoteSampleFacadeFactoryTest {
 
   @Test
   void name() {
-    SampleFacade<float[]> sensorSampleFacade = classUnderTest.sampleSensor("S1", "lejos.hardware.sensor.EV3TouchSensor", "Touch");
-
+    SampleFacade<float[]> sensorSampleFacade = classUnderTest.sampleSensor("TOUCH");
     Flux<float[]> sample = sensorSampleFacade.sample(100);
-
     sample.blockFirst();
   }
 
@@ -122,10 +121,12 @@ class RemoteSampleFacadeFactoryTest {
 
   @Test
   void dsfsdf() {
+    Scheduler sd = Schedulers.newElastic("sd");
+
     RSocket socket = RSocketFactory.connect().transport(TcpClientTransport.create("10.0.1.1", 7000)).start().block();
 
     socket
-        .requestStream(DefaultPayload.create("COLOR,500"))
+        .requestStream(DefaultPayload.create("SPEED,500"))
         .map(Payload::getData)
         .map(
             byteBuffer -> {
@@ -135,15 +136,15 @@ class RemoteSampleFacadeFactoryTest {
 
               return floatArray;
             })
-        .doOnNext(s -> System.out.println("SUB1: " + s[0]))
-        .subscribeOn(Schedulers.single())
+        .doOnNext(s -> System.out.println("SPEED: " + s[0]))
+        .subscribeOn(sd)
         .take(100)
         .sample(Duration.ofMillis(100))
         .then()
         .subscribe();
 
     socket
-        .requestStream(DefaultPayload.create("INDICATOR,1000"))
+        .requestStream(DefaultPayload.create("TOUCH,500"))
         .map(Payload::getData)
         .map(
             byteBuffer -> {
@@ -153,8 +154,31 @@ class RemoteSampleFacadeFactoryTest {
 
               return floatArray;
             })
-        .doOnNext(s -> System.out.println("SUB2: " + s[0]))
-        .subscribeOn(Schedulers.single())
+        .doOnNext(s -> System.out.println("TOUCH: " + s[0]))
+        .subscribeOn(sd)
+        .take(100)
+        .sample(Duration.ofMillis(100))
+        .then()
+        .subscribe();
+
+    socket
+        .requestStream(DefaultPayload.create("INDICATOR,500"))
+        .map(Payload::getData)
+        .map(
+            byteBuffer -> {
+              FloatBuffer fb = byteBuffer.asFloatBuffer();
+              float[] floatArray = new float[fb.limit()];
+              fb.get(floatArray);
+
+              return floatArray;
+            })
+        .doOnNext(
+            floats -> {
+              for (float f : floats) {
+                System.out.println("INDICATOR: " + f);
+              }
+            })
+        .subscribeOn(sd)
         .take(100)
         .sample(Duration.ofSeconds(1))
         .then()

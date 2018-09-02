@@ -12,7 +12,7 @@ public final class HighBeamAssistantSensor implements Sensor<TouchType> {
   private final SampleFacade<float[]> sensorSampleFacade;
 
   public HighBeamAssistantSensor(RemoteSampleFacadeFactory facadeFactory) {
-    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("S1", "lejos.hardware.sensor.EV3TouchSensor", "Touch");
+    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("TOUCH");
   }
 
   @Override

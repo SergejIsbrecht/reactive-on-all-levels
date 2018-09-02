@@ -7,9 +7,11 @@ import io.rsocket.RSocket;
 import io.rsocket.RSocketFactory;
 import io.rsocket.transport.netty.client.TcpClientTransport;
 import io.rsocket.util.DefaultPayload;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.time.Duration;
 import java.util.Objects;
+import java.util.function.Function;
 import javax.annotation.ParametersAreNonnullByDefault;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,34 +45,30 @@ class RemoteSampleFacadeFactory {
   }
 
   SampleFacade<MotorEvent> sampleRegulatedMotor(String resourceName) {
-    return sampleRate -> {
-      sample(resourceName, sampleRate)
-          .map(
-              floats -> {
-                return null;
-              });
-      return null;
-    };
+    return sampleRate -> sample(resourceName, sampleRate, MotorEvent::fromByteBuffer);
   }
 
   SampleFacade<float[]> sampleSensor(String resourceName) {
-    return sampleRate -> sample(resourceName, sampleRate);
+    return sampleRate ->
+        sample(
+            resourceName,
+            sampleRate,
+            byteBuffer -> {
+              FloatBuffer fb = byteBuffer.asFloatBuffer();
+              float[] floatArray = new float[fb.limit()];
+              fb.get(floatArray);
+              return floatArray;
+            });
   }
 
-  private Flux<float[]> sample(String resourceName, long sampleRate) {
-    Flux<float[]> flux =
+  private <T> Flux<T> sample(String resourceName, long sampleRate, Function<ByteBuffer, T> mapper) {
+    Flux<T> flux =
         socket.flatMapMany(
             rSocket -> {
               return rSocket
                   .requestStream(DefaultPayload.create(resourceName + "," + sampleRate))
                   .map(Payload::getData)
-                  .map(
-                      byteBuffer -> {
-                        FloatBuffer fb = byteBuffer.asFloatBuffer();
-                        float[] floatArray = new float[fb.limit()];
-                        fb.get(floatArray);
-                        return floatArray;
-                      })
+                  .map(mapper)
                   .retryWhen(
                       throwableFlux -> {
                         return throwableFlux
