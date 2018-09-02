@@ -17,6 +17,7 @@ public final class Server {
   public static void main(String[] args) {
     RemoteSampleFacadeFactory remoteSampleFacadeFactory = new RemoteSampleFacadeFactory("10.0.1.1", Schedulers.single());
 
+    // init sensors
     SpeedSensor speedSensor = new SpeedSensor(remoteSampleFacadeFactory);
     LightDetectionSensor lightDetectionSensor = new LightDetectionSensor(remoteSampleFacadeFactory);
     HighBeamAssistantSensor highBeamAssistantSensor = new HighBeamAssistantSensor(remoteSampleFacadeFactory);
