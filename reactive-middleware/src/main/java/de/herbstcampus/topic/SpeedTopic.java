@@ -6,16 +6,16 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
-public final class SpeedTopic implements Topic<Double> {
+public final class SpeedTopic implements Topic<Float> {
   private static final long SAMPLE_RATE_SPEED = 500;
-  private final Flux<Double> speed$;
+  private final Flux<Float> speed$;
 
-  public SpeedTopic(Sensor<Double> speed) {
+  public SpeedTopic(Sensor<Float> speed) {
     this.speed$ = Objects.requireNonNull(speed).stream$(SAMPLE_RATE_SPEED).distinctUntilChanged().replay(1).refCount();
   }
 
   @Override
-  public Flux<Double> stream$() {
+  public Flux<Float> stream$() {
     return speed$;
   }
 

@@ -1,6 +1,5 @@
 package de.herbstcampus.infrastructure;
 
-import de.herbstcampus.api.SampleFacade;
 import de.herbstcampus.api.Sensor;
 import de.herbstcampus.model.LightDetectionType;
 import java.util.Objects;
@@ -9,7 +8,7 @@ import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
 public final class LightDetectionSensor implements Sensor<LightDetectionType> {
-  private final SampleFacade<float[]> sensorSampleFacade;
+  private final Sensor<float[]> sensorSampleFacade;
 
   public LightDetectionSensor(RemoteSampleFacadeFactory facadeFactory) {
     this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("COLOR");
@@ -18,7 +17,7 @@ public final class LightDetectionSensor implements Sensor<LightDetectionType> {
   @Override
   public Flux<LightDetectionType> stream$(long sampleRate) {
     return sensorSampleFacade
-        .sample(sampleRate)
+        .stream$(sampleRate)
         .doOnNext(
             floats -> {
               for (float f : floats) {

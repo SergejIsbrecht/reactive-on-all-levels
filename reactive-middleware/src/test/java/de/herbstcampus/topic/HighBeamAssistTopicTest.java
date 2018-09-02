@@ -22,7 +22,7 @@ class HighBeamAssistTopicTest {
 
   @BeforeEach
   void setUp() {
-    Sensor<Double> speed = (Sensor<Double>) mock(Sensor.class);
+    Sensor<Float> speed = (Sensor<Float>) mock(Sensor.class);
     Sensor<LightDetectionType> lightDetection = (Sensor<LightDetectionType>) mock(Sensor.class);
     Sensor<TouchType> highBeamAssistantState = (Sensor<TouchType>) mock(Sensor.class);
 

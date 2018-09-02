@@ -1,6 +1,5 @@
 package de.herbstcampus.infrastructure;
 
-import de.herbstcampus.api.SampleFacade;
 import de.herbstcampus.api.Sensor;
 import de.herbstcampus.model.TouchType;
 import java.util.Objects;
@@ -9,7 +8,7 @@ import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
 public final class HighBeamAssistantSensor implements Sensor<TouchType> {
-  private final SampleFacade<float[]> sensorSampleFacade;
+  private final Sensor<float[]> sensorSampleFacade;
 
   public HighBeamAssistantSensor(RemoteSampleFacadeFactory facadeFactory) {
     this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("TOUCH");
@@ -17,9 +16,8 @@ public final class HighBeamAssistantSensor implements Sensor<TouchType> {
 
   @Override
   public Flux<TouchType> stream$(long sampleRate) {
-    // The sample contains one element, a value of 0 indicates that the button is not presse, a value of 1 indicates the button is pressed.
     return sensorSampleFacade
-        .sample(sampleRate)
+        .stream$(sampleRate)
         .map(
             floats -> {
               if (floats.length > 1) {

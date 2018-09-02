@@ -18,12 +18,12 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
   static final long SAMPLE_RATE_LIGHT = 100L;
   static final long SAMPLE_RATE_HIGH_BEAM_TOOGLE = 100L;
 
-  private final Sensor<Double> speedSensor;
+  private final Sensor<Float> speedSensor;
   private final Sensor<LightDetectionType> lightDetection;
   private final Flux<HighBeamState> highBeamState$;
   private final Flux<ActivityState> highBeamAssistantToggle;
 
-  public HighBeamAssistTopic(Sensor<Double> speedSensor, Sensor<LightDetectionType> lightDetection, Sensor<TouchType> highBeamAssistantState) {
+  public HighBeamAssistTopic(Sensor<Float> speedSensor, Sensor<LightDetectionType> lightDetection, Sensor<TouchType> highBeamAssistantState) {
     this.speedSensor = Objects.requireNonNull(speedSensor);
     this.lightDetection = Objects.requireNonNull(lightDetection);
     this.highBeamAssistantToggle =
@@ -62,8 +62,7 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
   /** Combines sensor-data from LightDetection, Speed and High-Beam (ON/OFF). */
   private Flux<HighBeamState> composedState$() {
     Flux<Option<LightDetectionType>> light$ = lightDetection.stream$(SAMPLE_RATE_LIGHT).map(Option::of).startWith(Option.<LightDetectionType>none());
-    Flux<Option<Double>> speed$ =
-        speedSensor.stream$(SAMPLE_RATE_SPEED).map(Option::of).startWith(Option.<Double>none()); // init with "invalid" value
+    Flux<Option<Float>> speed$ = speedSensor.stream$(SAMPLE_RATE_SPEED).map(Option::of).startWith(Option.<Float>none()); // init with "invalid" value
     Flux<Option<ActivityState>> highBeam$ = highBeamAssistantToggle.map(Option::of).startWith(Option.<ActivityState>none());
 
     // make sure every stream$ has a initial value -> Flux#combineLatest will fire, when all values have a first value and after that every time a

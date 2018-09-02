@@ -1,6 +1,6 @@
 package de.herbstcampus.infrastructure;
 
-import de.herbstcampus.api.SampleFacade;
+import de.herbstcampus.api.Sensor;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
 import io.rsocket.RSocketFactory;
@@ -28,8 +28,8 @@ class RemoteSampleFacadeFactoryTest {
 
   @Test
   void name() {
-    SampleFacade<float[]> sensorSampleFacade = classUnderTest.sampleSensor("TOUCH");
-    Flux<float[]> sample = sensorSampleFacade.sample(100);
+    Sensor<float[]> sensorSampleFacade = classUnderTest.sampleSensor("TOUCH");
+    Flux<float[]> sample = sensorSampleFacade.stream$(100);
     sample.blockFirst();
   }
 

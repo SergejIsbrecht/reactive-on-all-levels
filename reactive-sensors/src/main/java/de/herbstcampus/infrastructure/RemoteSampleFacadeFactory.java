@@ -1,6 +1,6 @@
 package de.herbstcampus.infrastructure;
 
-import de.herbstcampus.api.SampleFacade;
+import de.herbstcampus.api.Sensor;
 import de.herbstcampus.model.MotorEvent;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
@@ -23,7 +23,6 @@ class RemoteSampleFacadeFactory {
   private final Mono<RSocket> socket;
 
   RemoteSampleFacadeFactory(String ip, Scheduler intervalScheduler) {
-    // "10.0.1.1"
     this.socket =
         RSocketFactory.connect()
             .transport(TcpClientTransport.create(ip, 7000))
@@ -40,15 +39,16 @@ class RemoteSampleFacadeFactory {
                       .zipWith(Flux.range(1, 100), (throwable, integer) -> Duration.ofSeconds(integer))
                       .flatMap(duration -> Flux.interval(duration, intervalScheduler).take(1));
                 })
+            .doOnError(throwable -> System.out.println("[SOCKET] Socket connection failed to sensors."))
             .cache();
     this.intervalScheduler = Objects.requireNonNull(intervalScheduler);
   }
 
-  SampleFacade<MotorEvent> sampleRegulatedMotor(String resourceName) {
+  Sensor<MotorEvent> sampleRegulatedMotor(String resourceName) {
     return sampleRate -> sample(resourceName, sampleRate, MotorEvent::fromByteBuffer);
   }
 
-  SampleFacade<float[]> sampleSensor(String resourceName) {
+  Sensor<float[]> sampleSensor(String resourceName) {
     return sampleRate ->
         sample(
             resourceName,
