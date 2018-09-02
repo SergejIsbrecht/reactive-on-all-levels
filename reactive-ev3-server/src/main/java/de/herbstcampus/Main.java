@@ -10,7 +10,6 @@ import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3TouchSensor;
-import lejos.utility.Delay;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -32,18 +31,23 @@ public class Main {
     EV3TouchSensor ev3TouchSensor = new EV3TouchSensor(s2);
     DataSampler touchIntervalSensorSampler = IntervalSensorSampler.createSensorSampler(ev3TouchSensor.getTouchMode(), singleScheduler);
 
-    EV3LargeRegulatedMotor largeMotor = new EV3LargeRegulatedMotor(MotorPort.A);
-    DataSampler indicatorIntervalMotorSampler = IntervalMotorSampler.sampleMotor(largeMotor, singleScheduler);
+    EV3LargeRegulatedMotor indicatorMotor = new EV3LargeRegulatedMotor(MotorPort.A);
+    DataSampler indicatorIntervalMotorSampler = IntervalMotorSampler.sampleMotor(indicatorMotor, singleScheduler);
+    indicatorIntervalMotorSampler.sample(5000).subscribe(floats -> System.out.println("[INDICATOR] sample..."));
+    indicatorMotor.setSpeed(100);
+    indicatorMotor.flt();
 
-    indicatorIntervalMotorSampler.sample(500).subscribe(floats -> System.out.println("floats"));
-
-    largeMotor.setSpeed(100);
-    largeMotor.flt();
+    EV3LargeRegulatedMotor speedMotor = new EV3LargeRegulatedMotor(MotorPort.B);
+    DataSampler speedIntervalMotorSampler = IntervalMotorSampler.sampleMotor(speedMotor, singleScheduler);
+    speedIntervalMotorSampler.sample(5000).subscribe(floats -> System.out.println("[SPEED] sample..."));
+    speedMotor.setSpeed(100);
+    speedMotor.flt();
 
     HashMap<String, DataSampler> samplerMap = new HashMap<>();
     samplerMap.put("TOUCH", touchIntervalSensorSampler);
     samplerMap.put("COLOR", colorIntervalSensorSampler);
     samplerMap.put("INDICATOR", indicatorIntervalMotorSampler);
+    samplerMap.put("SPEED", speedIntervalMotorSampler);
 
     // TODO: create disposable for all sensors -> cleanup work
 
