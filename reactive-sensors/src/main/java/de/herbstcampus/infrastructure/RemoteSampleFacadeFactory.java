@@ -3,7 +3,6 @@ package de.herbstcampus.infrastructure;
 import de.herbstcampus.api.SampleFacade;
 import de.herbstcampus.model.ImmutableMotorEvent;
 import de.herbstcampus.model.MotorEvent;
-import de.herbstcampus.model.MotorRotationType;
 import io.vavr.Lazy;
 import io.vavr.control.Try;
 import java.time.Duration;
@@ -44,38 +43,12 @@ class RemoteSampleFacadeFactory {
 
                         @Override
                         public void rotationStarted(RegulatedMotor motor, int tachoCount, boolean stalled, long timeStamp) {
-                          int limitAngle = motor.getLimitAngle();
-                          int speed = motor.getSpeed();
-                          int rotationSpeed = motor.getRotationSpeed();
-
-                          fluxSink.next(
-                              builder
-                                  .stalled(stalled)
-                                  .tachoCount(tachoCount)
-                                  .timeStamp(timeStamp)
-                                  .type(MotorRotationType.STARTED)
-                                  .limitAngle(limitAngle)
-                                  .speed(speed)
-                                  .rotationSpeed(rotationSpeed)
-                                  .build());
+                          fluxSink.next(builder.tachoCount(tachoCount).build());
                         }
 
                         @Override
                         public void rotationStopped(RegulatedMotor motor, int tachoCount, boolean stalled, long timeStamp) {
-                          int limitAngle = motor.getLimitAngle();
-                          int speed = motor.getSpeed();
-                          int rotationSpeed = motor.getRotationSpeed();
-
-                          fluxSink.next(
-                              builder
-                                  .stalled(stalled)
-                                  .tachoCount(tachoCount)
-                                  .timeStamp(timeStamp)
-                                  .type(MotorRotationType.STOPPED)
-                                  .limitAngle(limitAngle)
-                                  .speed(speed)
-                                  .rotationSpeed(rotationSpeed)
-                                  .build());
+                          fluxSink.next(builder.tachoCount(tachoCount).build());
                         }
                       };
 
