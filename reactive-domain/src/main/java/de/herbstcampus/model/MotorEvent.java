@@ -6,8 +6,6 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface MotorEvent {
   static MotorEvent fromByteBuffer(ByteBuffer buffer) {
-    buffer.flip();
-
     int tachoCount = buffer.getInt();
     return ImmutableMotorEvent.of(tachoCount);
   }

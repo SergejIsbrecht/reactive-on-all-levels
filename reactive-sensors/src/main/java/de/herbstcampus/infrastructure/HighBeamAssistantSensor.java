@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 public final class HighBeamAssistantSensor implements Sensor<TouchType> {
   private final Sensor<float[]> sensorSampleFacade;
 
-  public HighBeamAssistantSensor(RemoteSampleFacadeFactory facadeFactory) {
+  public HighBeamAssistantSensor(RemoteSampleFacade facadeFactory) {
     this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("TOUCH");
   }
 
@@ -32,6 +32,7 @@ public final class HighBeamAssistantSensor implements Sensor<TouchType> {
               } else {
                 return TouchType.INVALID;
               }
-            });
+            })
+        .doOnNext(touchType -> System.out.println("[HighBeamAssistantSensor] value: " + touchType));
   }
 }

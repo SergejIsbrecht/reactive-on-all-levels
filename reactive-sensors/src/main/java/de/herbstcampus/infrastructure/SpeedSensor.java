@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 public final class SpeedSensor implements Sensor<Float> {
   private final Sensor<MotorEvent> sensorSampleFacade;
 
-  public SpeedSensor(RemoteSampleFacadeFactory facadeFactory) {
+  public SpeedSensor(RemoteSampleFacade facadeFactory) {
     this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("SPEED");
   }
 

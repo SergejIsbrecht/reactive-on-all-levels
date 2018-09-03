@@ -19,7 +19,7 @@ class HighBeamAssistantSensorTest {
   @BeforeEach
   void setUp() {
     this.sensorData$ = EmitterProcessor.create();
-    RemoteSampleFacadeFactory factory = mock(RemoteSampleFacadeFactory.class);
+    RemoteSampleFacade factory = mock(RemoteSampleFacade.class);
     when(factory.sampleSensor(anyString())).thenReturn(sampleRate -> sensorData$);
 
     this.classUnderTest = new HighBeamAssistantSensor(factory);

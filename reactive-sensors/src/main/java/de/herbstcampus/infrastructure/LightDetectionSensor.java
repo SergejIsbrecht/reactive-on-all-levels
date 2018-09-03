@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 public final class LightDetectionSensor implements Sensor<LightDetectionType> {
   private final Sensor<float[]> sensorSampleFacade;
 
-  public LightDetectionSensor(RemoteSampleFacadeFactory facadeFactory) {
+  public LightDetectionSensor(RemoteSampleFacade facadeFactory) {
     this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleSensor("COLOR");
   }
 
@@ -18,12 +18,6 @@ public final class LightDetectionSensor implements Sensor<LightDetectionType> {
   public Flux<LightDetectionType> stream$(long sampleRate) {
     return sensorSampleFacade
         .stream$(sampleRate)
-        .doOnNext(
-            floats -> {
-              for (float f : floats) {
-                System.out.println(String.valueOf(f));
-              }
-            })
         .map(
             floats -> {
               if (floats.length != 1) {
@@ -33,7 +27,7 @@ public final class LightDetectionSensor implements Sensor<LightDetectionType> {
               float ambientLightValue = floats[0];
               if (ambientLightValue <= 0.0f || ambientLightValue > 1.0f) {
                 return LightDetectionType.INVALID;
-              } else if (ambientLightValue > 0.8) {
+              } else if (ambientLightValue > 0.7) {
                 return LightDetectionType.DETECTED;
               } else if (Float.isNaN(ambientLightValue)) {
                 return LightDetectionType.INVALID;

@@ -51,7 +51,7 @@ class HighBeamAssistTopicTest {
 
     StepVerifier.create(highBeamStateFlux) //
         .expectNext(HighBeamState.ENABLED)
-        .expectNext(HighBeamState.DISABLED_SPPEED_LIMIT)
+        .expectNext(HighBeamState.DISABLED_SPEED_LIMIT)
         .thenCancel();
   }
 

@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
 public final class IndicatorSensor implements Sensor<IndicatorType> {
   private final Sensor<MotorEvent> sensorSampleFacade;
 
-  public IndicatorSensor(RemoteSampleFacadeFactory facadeFactory) {
+  public IndicatorSensor(RemoteSampleFacade facadeFactory) {
     this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("INDICATOR");
   }
 

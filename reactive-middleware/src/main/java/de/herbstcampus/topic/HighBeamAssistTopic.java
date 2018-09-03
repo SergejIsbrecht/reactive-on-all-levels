@@ -19,25 +19,29 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
   static final long SAMPLE_RATE_HIGH_BEAM_TOOGLE = 100L;
 
   private final Sensor<Float> speedSensor;
-  private final Sensor<LightDetectionType> lightDetection;
+  private final Sensor<LightDetectionType> lightDetectionSensor;
   private final Flux<HighBeamState> highBeamState$;
   private final Flux<ActivityState> highBeamAssistantToggle;
 
-  public HighBeamAssistTopic(Sensor<Float> speedSensor, Sensor<LightDetectionType> lightDetection, Sensor<TouchType> highBeamAssistantState) {
+  public HighBeamAssistTopic(Sensor<Float> speedSensor, Sensor<LightDetectionType> lightDetectionSensor, Sensor<TouchType> highBeamAssistantState) {
     this.speedSensor = Objects.requireNonNull(speedSensor);
-    this.lightDetection = Objects.requireNonNull(lightDetection);
+    this.lightDetectionSensor = Objects.requireNonNull(lightDetectionSensor);
     this.highBeamAssistantToggle =
         Objects.requireNonNull(highBeamAssistantState)
             .stream$(SAMPLE_RATE_HIGH_BEAM_TOOGLE)
+            // overlapping-buffer
             .buffer(2, 1)
+            //
             .filter(touchTypes -> touchTypes.size() == 2)
             .filter(
                 touchTypes -> {
+                  // only trigger update, when button was PRESSED and NOT_PRESSED (button down / button up)
                   return touchTypes.get(0) == TouchType.PRESSED && touchTypes.get(1) == TouchType.NOT_PRESSED;
                 })
             .scan(
                 ActivityState.NOT_ACTIVE,
                 (activityState, trigger) -> {
+                  // toggle state every time the button was pressed
                   if (activityState == ActivityState.NOT_ACTIVE) {
                     return ActivityState.IS_ACTIVE;
                   } else {
@@ -61,7 +65,8 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
 
   /** Combines sensor-data from LightDetection, Speed and High-Beam (ON/OFF). */
   private Flux<HighBeamState> composedState$() {
-    Flux<Option<LightDetectionType>> light$ = lightDetection.stream$(SAMPLE_RATE_LIGHT).map(Option::of).startWith(Option.<LightDetectionType>none());
+    Flux<Option<LightDetectionType>> light$ =
+        lightDetectionSensor.stream$(SAMPLE_RATE_LIGHT).map(Option::of).startWith(Option.<LightDetectionType>none());
     Flux<Option<Float>> speed$ = speedSensor.stream$(SAMPLE_RATE_SPEED).map(Option::of).startWith(Option.<Float>none()); // init with "invalid" value
     Flux<Option<ActivityState>> highBeam$ = highBeamAssistantToggle.map(Option::of).startWith(Option.<ActivityState>none());
 
@@ -72,8 +77,11 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
             speed$,
             highBeam$,
             objects -> Tuple.of((Option<LightDetectionType>) objects[0], (Option<Double>) objects[1], (Option<ActivityState>) objects[2]))
+        .doOnNext(tuple -> System.out.println("[TOPIC][HIGH_BEAM_ASSISTANT] tuple: " + tuple))
+        // only interested in valid values
         .filter(t -> t._1.isDefined() && t._2.isDefined() && t._3.isDefined())
-        .map(t -> combine(t._1.get(), t._2.get(), t._3.get()));
+        .map(t -> combine(t._1.get(), t._2.get(), t._3.get()))
+        .doOnNext(highBeamState -> System.out.println("[TOPIC][HIGH_BEAM_ASSISTANT] value: " + highBeamState));
   }
 
   private HighBeamState combine(LightDetectionType lightType, double speed, ActivityState highBeam) {
@@ -83,7 +91,7 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
 
     boolean isSpeedThresholdExceeded = speed >= SPEED_THRESHOLD;
     if (isSpeedThresholdExceeded) {
-      return HighBeamState.DISABLED_SPPEED_LIMIT;
+      return HighBeamState.DISABLED_SPEED_LIMIT;
     }
     boolean isLightDetected = lightType == LightDetectionType.DETECTED;
     if (isLightDetected) {
