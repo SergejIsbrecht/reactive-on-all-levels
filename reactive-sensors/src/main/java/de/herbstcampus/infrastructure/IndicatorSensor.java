@@ -19,12 +19,16 @@ public final class IndicatorSensor implements Sensor<IndicatorType> {
   public Flux<IndicatorType> stream$(long sampleRate) {
     return sensorSampleFacade
         .stream$(sampleRate)
+        .doOnNext(motorEvent -> System.out.println("[SENSOR][IndicatorSensor] event:  " + motorEvent))
         .map(
             motorEvent -> {
-              System.out.println("[SENSOR][IndicatorSensor] " + sampleRate);
+              // YEP, that's it. I am an imposter
 
-              // TODO: IMPLEMENT
-
+              if (motorEvent.tachoCount() < -80) {
+                return IndicatorType.LEFT;
+              } else if (motorEvent.tachoCount() > 40) {
+                return IndicatorType.RIGHT;
+              }
               return IndicatorType.OFF;
             });
   }

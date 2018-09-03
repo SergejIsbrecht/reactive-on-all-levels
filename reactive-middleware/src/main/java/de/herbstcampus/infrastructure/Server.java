@@ -12,14 +12,18 @@ import java.time.Duration;
 import java.util.Optional;
 import javax.annotation.ParametersAreNonnullByDefault;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 @ParametersAreNonnullByDefault
 public final class Server {
-  private static final String SENSOR_SERVER = "10.0.1.1";
+  private static final String SENSOR_SERVER_SERVER = "10.0.1.1";
+  private static final int SENSOR_SERVER_PORT = 7000;
 
   public static void main(String[] args) {
-    RemoteSampleFacade remoteSampleFacade = new RemoteSampleFacade(SENSOR_SERVER, Schedulers.single());
+    Scheduler scheduler = Schedulers.newSingle("SERVER");
+
+    RemoteSampleFacade remoteSampleFacade = new RemoteSampleFacade(SENSOR_SERVER_SERVER, SENSOR_SERVER_PORT, scheduler);
 
     // init sensors
     SpeedSensor speedSensor = new SpeedSensor(remoteSampleFacade);

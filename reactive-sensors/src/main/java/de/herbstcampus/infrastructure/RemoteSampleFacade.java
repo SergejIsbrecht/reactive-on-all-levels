@@ -24,20 +24,21 @@ class RemoteSampleFacade implements Disposable {
   private final Scheduler intervalScheduler;
   private final Mono<RSocket> socket;
 
-  RemoteSampleFacade(String ip, Scheduler intervalScheduler) {
+  RemoteSampleFacade(String ip, int port, Scheduler intervalScheduler) {
     this.socket =
         RSocketFactory.connect()
-            .transport(TcpClientTransport.create(ip, 7000))
+            .transport(TcpClientTransport.create(ip, port))
             .start()
             .timeout(Duration.ofSeconds(5), intervalScheduler)
+            .doOnError(throwable -> System.out.println("[SOCKET][RemoteSampleFacade] Could not connect to socket server."))
             .compose(repeat(100, intervalScheduler))
             .retryWhen(retry(100, intervalScheduler))
-            .doOnError(throwable -> System.out.println("[SOCKET] Socket connection failed to sensors."))
+            .doOnError(throwable -> System.out.println("[SOCKET][RemoteSampleFacade] Socket connection failed to sensors."))
             .cache();
     this.intervalScheduler = Objects.requireNonNull(intervalScheduler);
   }
 
-  private static <T> Function<Flux<Throwable>, Publisher<Long>> retry(int count, Scheduler scheduler) {
+  private static Function<Flux<Throwable>, Publisher<Long>> retry(int count, Scheduler scheduler) {
     return throwableFlux -> {
       Flux<Long> longFlux =
           throwableFlux
@@ -77,10 +78,14 @@ class RemoteSampleFacade implements Disposable {
             rSocket -> {
               return rSocket
                   .requestStream(DefaultPayload.create(resourceName + "," + sampleRate))
+                  .doOnSubscribe(
+                      subscription ->
+                          System.out.println("[REMOTE_FACADE] Request sampling resource " + resourceName + " with sampling " + sampleRate))
                   .map(Payload::getData)
                   .map(mapper)
+                  .doOnError(t -> System.err.println("[REMOTE_FACADE] Error in Sample resource: " + resourceName + " with sampleRate " + sampleRate))
                   .retryWhen(retry(100, intervalScheduler))
-                  .doOnNext(t -> System.out.println("[REMOTE_FACADE] Sample resource: " + resourceName + " with sampleRate " + sampleRate))
+                  // .doOnNext(t -> System.out.println("[REMOTE_FACADE] Resource : " + resourceName + "(sampleRate=" + sampleRate + ") value: " + t))
                   .subscribeOn(intervalScheduler);
             });
     return flux;

@@ -13,7 +13,13 @@ public final class IndicatorTopic implements Topic<IndicatorType> {
   private final Flux<IndicatorType> indicator$;
 
   public IndicatorTopic(Sensor<IndicatorType> indicatorSensor) {
-    this.indicator$ = Objects.requireNonNull(indicatorSensor).stream$(INDICATOR_SAMPLE_RATE).distinctUntilChanged().replay(1).refCount();
+    this.indicator$ =
+        Objects.requireNonNull(indicatorSensor)
+            .stream$(INDICATOR_SAMPLE_RATE)
+            .distinctUntilChanged()
+            .doOnNext(indicatorType -> System.out.println("[SENSOR][IndicatorTopic] IndicatorType:  " + indicatorType))
+            .replay(1)
+            .refCount();
   }
 
   @Override

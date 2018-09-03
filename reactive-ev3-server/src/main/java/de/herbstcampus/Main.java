@@ -26,20 +26,22 @@ public class Main {
     Port s1 = localEV3.getPort("S1");
     EV3ColorSensor ev3ColorSensor = new EV3ColorSensor(s1);
     DataSampler colorIntervalSensorSampler = IntervalSensorSampler.createSensorSampler(ev3ColorSensor.getAmbientMode(), singleScheduler);
+    colorIntervalSensorSampler.sample(5000).subscribe(bytes -> System.out.println("[COLOR] sample..."));
 
     Port s2 = localEV3.getPort("S2");
     EV3TouchSensor ev3TouchSensor = new EV3TouchSensor(s2);
     DataSampler touchIntervalSensorSampler = IntervalSensorSampler.createSensorSampler(ev3TouchSensor.getTouchMode(), singleScheduler);
+    touchIntervalSensorSampler.sample(5000).subscribe(bytes -> System.out.println("[TOUCH] sample..."));
 
     EV3LargeRegulatedMotor indicatorMotor = new EV3LargeRegulatedMotor(MotorPort.A);
     DataSampler indicatorIntervalMotorSampler = IntervalMotorSampler.sampleMotor(indicatorMotor, singleScheduler);
-    indicatorIntervalMotorSampler.sample(5000).subscribe(floats -> System.out.println("[INDICATOR] sample..."));
+    indicatorIntervalMotorSampler.sample(5000).subscribe(bytes -> System.out.println("[INDICATOR] sample..."));
     indicatorMotor.setSpeed(100);
     indicatorMotor.flt();
 
     EV3LargeRegulatedMotor speedMotor = new EV3LargeRegulatedMotor(MotorPort.B);
     DataSampler speedIntervalMotorSampler = IntervalMotorSampler.sampleMotor(speedMotor, singleScheduler);
-    speedIntervalMotorSampler.sample(5000).subscribe(floats -> System.out.println("[SPEED] sample..."));
+    speedIntervalMotorSampler.sample(5000).subscribe(bytes -> System.out.println("[SPEED] sample..."));
     speedMotor.setSpeed(100);
     speedMotor.flt();
 

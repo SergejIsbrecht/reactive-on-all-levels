@@ -7,6 +7,7 @@ import de.herbstcampus.model.LightDetectionType;
 import de.herbstcampus.model.TouchType;
 import io.vavr.Tuple;
 import io.vavr.control.Option;
+import java.time.Duration;
 import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
 import reactor.core.publisher.Flux;
@@ -31,13 +32,13 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
             .stream$(SAMPLE_RATE_HIGH_BEAM_TOOGLE)
             // overlapping-buffer
             .buffer(2, 1)
-            //
             .filter(touchTypes -> touchTypes.size() == 2)
             .filter(
                 touchTypes -> {
                   // only trigger update, when button was PRESSED and NOT_PRESSED (button down / button up)
                   return touchTypes.get(0) == TouchType.PRESSED && touchTypes.get(1) == TouchType.NOT_PRESSED;
                 })
+            // seed value will be emitted instant on sub
             .scan(
                 ActivityState.NOT_ACTIVE,
                 (activityState, trigger) -> {
@@ -65,8 +66,14 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
 
   /** Combines sensor-data from LightDetection, Speed and High-Beam (ON/OFF). */
   private Flux<HighBeamState> composedState$() {
+
     Flux<Option<LightDetectionType>> light$ =
-        lightDetectionSensor.stream$(SAMPLE_RATE_LIGHT).map(Option::of).startWith(Option.<LightDetectionType>none());
+        lightDetectionSensor
+            .stream$(SAMPLE_RATE_LIGHT)
+            // https://stackoverflow.com/questions/30140044/deliver-the-first-item-immediately-debounce-following-items
+            .publish(publishedItems -> publishedItems.take(1).concatWith(publishedItems.skip(1).sample(Duration.ofMillis(250))))
+            .map(Option::of)
+            .startWith(Option.<LightDetectionType>none());
     Flux<Option<Float>> speed$ = speedSensor.stream$(SAMPLE_RATE_SPEED).map(Option::of).startWith(Option.<Float>none()); // init with "invalid" value
     Flux<Option<ActivityState>> highBeam$ = highBeamAssistantToggle.map(Option::of).startWith(Option.<ActivityState>none());
 
@@ -76,7 +83,8 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
             light$,
             speed$,
             highBeam$,
-            objects -> Tuple.of((Option<LightDetectionType>) objects[0], (Option<Double>) objects[1], (Option<ActivityState>) objects[2]))
+            objects -> Tuple.of((Option<LightDetectionType>) objects[0], (Option<Float>) objects[1], (Option<ActivityState>) objects[2]))
+        .distinctUntilChanged()
         .doOnNext(tuple -> System.out.println("[TOPIC][HIGH_BEAM_ASSISTANT] tuple: " + tuple))
         // only interested in valid values
         .filter(t -> t._1.isDefined() && t._2.isDefined() && t._3.isDefined())

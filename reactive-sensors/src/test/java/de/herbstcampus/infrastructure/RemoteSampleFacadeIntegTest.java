@@ -9,7 +9,7 @@ class RemoteSampleFacadeIntegTest {
 
   @BeforeEach
   void setUp() {
-    this.classUnderTest = new RemoteSampleFacade("10.0.1.1", Schedulers.single());
+    this.classUnderTest = new RemoteSampleFacade("10.0.1.1", 7000, Schedulers.single());
   }
 
   @Test

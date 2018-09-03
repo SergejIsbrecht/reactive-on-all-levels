@@ -25,9 +25,10 @@ public final class LightDetectionSensor implements Sensor<LightDetectionType> {
               }
 
               float ambientLightValue = floats[0];
+
               if (ambientLightValue <= 0.0f || ambientLightValue > 1.0f) {
                 return LightDetectionType.INVALID;
-              } else if (ambientLightValue > 0.7) {
+              } else if (ambientLightValue > 0.35) {
                 return LightDetectionType.DETECTED;
               } else if (Float.isNaN(ambientLightValue)) {
                 return LightDetectionType.INVALID;
