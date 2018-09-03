@@ -1,5 +1,6 @@
 package de.herbstcampus;
 
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -22,13 +23,16 @@ final class IntervalSensorSampler implements DataSampler {
   }
 
   @Override
-  public Flux<float[]> sample(long sampleRate) {
+  public Flux<byte[]> sample(long sampleRate) {
     return Flux.interval(Duration.ofMillis(sampleRate), scheduler)
         .map(
-            aLong -> {
+            ignore -> {
               float[] sample = new float[sampleProvider.sampleSize()];
               sampleProvider.fetchSample(sample, 0);
-              return sample;
+              ByteBuffer byteBuffer = ByteUtils.floatArray2ByteArray(sample);
+              byte[] array = byteBuffer.array();
+
+              return array;
             });
   }
 }

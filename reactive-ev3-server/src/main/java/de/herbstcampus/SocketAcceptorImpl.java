@@ -34,8 +34,8 @@ final class SocketAcceptorImpl implements SocketAcceptor {
                         s -> {
                           return s.sample(parsedPayload.sampleRate())
                               .map(
-                                  floats -> {
-                                    ByteBuffer byteBuffer = ByteUtils.floatArray2ByteArray(floats);
+                                  bytes -> {
+                                    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
                                     return DefaultPayload.create(byteBuffer.array());
                                   });
                         })

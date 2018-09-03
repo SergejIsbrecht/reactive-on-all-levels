@@ -24,7 +24,7 @@ final class IntervalMotorSampler implements DataSampler {
   }
 
   @Override
-  public Flux<float[]> sample(long sampleRate) {
+  public Flux<byte[]> sample(long sampleRate) {
     return Flux.interval(Duration.ofMillis(sampleRate), scheduler)
         .map(
             aLong -> {
@@ -37,7 +37,7 @@ final class IntervalMotorSampler implements DataSampler {
             })
         .map(
             motorEvent -> {
-              float[] array = motorEvent.toFloatArry();
+              byte[] array = motorEvent.toByteArray();
               return array;
             });
   }
