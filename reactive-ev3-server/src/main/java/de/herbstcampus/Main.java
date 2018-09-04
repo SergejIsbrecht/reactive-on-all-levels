@@ -27,12 +27,12 @@ public class Main {
 
     Scheduler singleScheduler = Schedulers.single();
 
-    Port s1 = localEV3.getPort("S1");
+    Port s1 = localEV3.getPort("S3");
     EV3ColorSensor ev3ColorSensor = new EV3ColorSensor(s1);
     DataSampler colorIntervalSensorSampler = IntervalSensorSampler.createSensorSampler(ev3ColorSensor.getAmbientMode(), singleScheduler);
     colorIntervalSensorSampler.sample(5000).subscribe(bytes -> System.out.println("[COLOR] sample..."));
 
-    Port s2 = localEV3.getPort("S2");
+    Port s2 = localEV3.getPort("S4");
     EV3TouchSensor ev3TouchSensor = new EV3TouchSensor(s2);
     DataSampler touchIntervalSensorSampler = IntervalSensorSampler.createSensorSampler(ev3TouchSensor.getTouchMode(), singleScheduler);
     touchIntervalSensorSampler.sample(5000).subscribe(bytes -> System.out.println("[TOUCH] sample..."));

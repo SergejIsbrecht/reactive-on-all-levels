@@ -1,5 +1,8 @@
 package de.herbstcampus.topic;
 
+import java.time.Duration;
+import java.util.Objects;
+import javax.annotation.ParametersAreNonnullByDefault;
 import de.herbstcampus.api.Sensor;
 import de.herbstcampus.model.ActivityState;
 import de.herbstcampus.model.HighBeamState;
@@ -7,14 +10,11 @@ import de.herbstcampus.model.LightDetectionType;
 import de.herbstcampus.model.TouchType;
 import io.vavr.Tuple;
 import io.vavr.control.Option;
-import java.time.Duration;
-import java.util.Objects;
-import javax.annotation.ParametersAreNonnullByDefault;
 import reactor.core.publisher.Flux;
 
 @ParametersAreNonnullByDefault
 public final class HighBeamAssistTopic implements Topic<HighBeamState> {
-  static final long SPEED_THRESHOLD = 160L;
+  static final long SPEED_THRESHOLD = 130L;
   static final long SAMPLE_RATE_SPEED = 100L;
   static final long SAMPLE_RATE_LIGHT = 100L;
   static final long SAMPLE_RATE_HIGH_BEAM_TOOGLE = 100L;

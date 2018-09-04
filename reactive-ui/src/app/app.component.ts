@@ -1,16 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import RSocketWebSocketClient from 'rsocket-websocket-client';
-import { RSocketClient, Utf8Encoders } from 'rsocket-core';
-import { Responder } from 'rsocket-types';
-import { Observable, timer } from 'rxjs';
-import {
-  map,
-  retryWhen,
-  tap,
-  delayWhen,
-  shareReplay,
-  switchMap
-} from 'rxjs/operators';
+import {RSocketClient, Utf8Encoders} from 'rsocket-core';
+import {Responder} from 'rsocket-types';
+import {interval, Observable, timer} from 'rxjs';
+import {delayWhen, map, retryWhen, shareReplay, switchMap, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -18,13 +11,12 @@ import {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  title = 'reactive-ui';
-
   highBeam$: Observable<HighBeamState>;
-  speed$: Observable<Number>;
+  speed$: Observable<string>;
   indicator$: Observable<IndicatorType>;
 
-  constructor() {}
+  constructor() {
+  }
 
   ngOnInit() {
     const client$: Observable<Responder> = new Observable(observer => {
@@ -58,7 +50,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }).pipe(
       retryWhen(errors =>
         errors.pipe(
-          tap(ignore => console.log(`failed to connect...`)),
+          tap(ignore => console.log('failed to connect...')),
           delayWhen(ignore => timer(1000))
         )
       ),
@@ -76,14 +68,16 @@ export class AppComponent implements OnInit, OnDestroy {
       switchMap(rSocket => {
         return createTopic$('INDICATOR', 100, rSocket);
       }),
-      map((s: string) => IndicatorType[s])
+      map((s: string) => IndicatorType[s]),
+      switchMap(s =>
+        interval(500).pipe(map(i => i % 2 ? s : IndicatorType.OFF))
+      )
     );
 
     this.speed$ = client$.pipe(
       switchMap(rSocket => {
         return createTopic$('SPEED', 100, rSocket);
-      }),
-      map((s: string) => Number(s))
+      })
     );
 
     this.speed$.subscribe(
@@ -92,14 +86,15 @@ export class AppComponent implements OnInit, OnDestroy {
       () => console.log('onCompleted'));
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+  }
 }
 
 function createTopic$(
   topic: string,
   initRequest: number,
   rSocket: Responder
-): Observable<String> {
+): Observable<string> {
   const obs$ = Observable.create(observer => {
     rSocket
       .requestStream({

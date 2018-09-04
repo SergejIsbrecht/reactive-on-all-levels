@@ -12,24 +12,24 @@ public final class IndicatorSensor implements Sensor<IndicatorType> {
   private final Sensor<MotorEvent> sensorSampleFacade;
 
   public IndicatorSensor(RemoteSampleFacade facadeFactory) {
-    this.sensorSampleFacade = Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("INDICATOR");
+    this.sensorSampleFacade =
+        Objects.requireNonNull(facadeFactory).sampleRegulatedMotor("INDICATOR");
   }
 
   @Override
   public Flux<IndicatorType> stream$(long sampleRate) {
-    return sensorSampleFacade
-        .stream$(sampleRate)
-        .doOnNext(motorEvent -> System.out.println("[SENSOR][IndicatorSensor] event:  " + motorEvent))
-        .map(
-            motorEvent -> {
-              // YEP, that's it. I am an imposter
+    return sensorSampleFacade.stream$(sampleRate)
+        .doOnNext(
+            motorEvent -> System.out.println("[SENSOR][IndicatorSensor] event:  " + motorEvent))
+        .map(motorEvent -> {
+          // YEP, that's it. I am an imposter
 
-              if (motorEvent.tachoCount() < -35) {
-                return IndicatorType.LEFT;
-              } else if (motorEvent.tachoCount() > 35) {
-                return IndicatorType.RIGHT;
-              }
-              return IndicatorType.OFF;
-            });
+          if (motorEvent.tachoCount() < -25) {
+            return IndicatorType.RIGHT;
+          } else if (motorEvent.tachoCount() > 25) {
+            return IndicatorType.LEFT;
+          }
+          return IndicatorType.OFF;
+        });
   }
 }
