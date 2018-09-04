@@ -28,12 +28,16 @@ final class SocketAcceptorImpl implements SocketAcceptor {
         new AbstractRSocket() {
           @Override
           public Flux<Payload> requestStream(Payload payload) {
-            String topicName = payload.getDataUtf8();
-
+            String payloadAsString = payload.getDataUtf8();
             // TODO: cache and multi-cast Topics
-            Option<Topic<?>> topic = topics.find(t -> t.name().toLowerCase().equals(topicName.toLowerCase()));
+            Option<Topic<?>> topic = topics.find(t -> t.name().toLowerCase().equals(payloadAsString.toLowerCase()));
             return topic
-                .map(t -> t.stream$().map(o -> DefaultPayload.create(o.toString())))
+                .map(
+                    t -> {
+                      return t.stream$()
+                          .doOnSubscribe(subscription -> System.out.println("[SERVER] Request topic: " + payloadAsString))
+                          .map(o -> DefaultPayload.create(o.toString()));
+                    })
                 .getOrElse(Flux.error(new IllegalArgumentException("[SERVER] Unknown topic")));
           }
         });
