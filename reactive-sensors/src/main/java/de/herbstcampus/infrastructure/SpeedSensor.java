@@ -21,8 +21,7 @@ public final class SpeedSensor implements Sensor<Float> {
         .map(
             motorEvent -> {
               System.out.println("[SENSOR][SpeedSensor] " + motorEvent.tachoCount());
-              // TODO: implement
-              return -1f;
+              return motorEvent.tachoCount() * 3f;
             });
   }
 }
