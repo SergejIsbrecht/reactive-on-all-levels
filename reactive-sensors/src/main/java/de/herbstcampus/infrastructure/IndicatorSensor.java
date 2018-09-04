@@ -24,9 +24,9 @@ public final class IndicatorSensor implements Sensor<IndicatorType> {
             motorEvent -> {
               // YEP, that's it. I am an imposter
 
-              if (motorEvent.tachoCount() < -80) {
+              if (motorEvent.tachoCount() < -35) {
                 return IndicatorType.LEFT;
-              } else if (motorEvent.tachoCount() > 40) {
+              } else if (motorEvent.tachoCount() > 35) {
                 return IndicatorType.RIGHT;
               }
               return IndicatorType.OFF;
