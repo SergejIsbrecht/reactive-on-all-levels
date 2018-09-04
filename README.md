@@ -1,4 +1,4 @@
-# Reactive Programmierung auf allen Ebenen
+# Reactive Programming at all layers
 
 Info:: https://www.herbstcampus.de/veranstaltung-7212-reaktive-programmierung-auf-allen-ebenen.html?id=7212
 
