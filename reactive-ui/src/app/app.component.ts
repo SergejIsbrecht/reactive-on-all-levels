@@ -27,29 +27,30 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor() {}
 
   ngOnInit() {
-    const url = 'ws://localhost:8042';
-    const client = new RSocketClient({
-      setup: {
-        // ms btw sending keepalive to server
-        keepAlive: 60000,
-        // ms timeout if no keepalive response
-        lifetime: 180000,
-        dataMimeType: 'binary',
-        metadataMimeType: 'binary'
-      },
-      transport: new RSocketWebSocketClient(
-        {
-          url: url,
-          debug: true,
-          lengthPrefixedFrames: false
-        },
-        Utf8Encoders
-      )
-    });
-
     const client$: Observable<Responder> = new Observable(observer => {
+      const client = new RSocketClient({
+        setup: {
+          // ms btw sending keepalive to server
+          keepAlive: 60000,
+          // ms timeout if no keepalive response
+          lifetime: 180000,
+          dataMimeType: 'binary',
+          metadataMimeType: 'binary'
+        },
+        transport: new RSocketWebSocketClient(
+          {
+            url: 'ws://localhost:8042',
+            debug: true,
+            lengthPrefixedFrames: false
+          },
+          Utf8Encoders
+        )
+      });
+
       client.connect().subscribe({
         onComplete: socket => {
+          // socket.onClose().catch(error => observer.error(error));
+
           observer.next(socket);
         },
         onError: error => observer.error(error)
@@ -115,14 +116,7 @@ function createTopic$(
           subscription.request(initRequest);
         }
       });
-  }).pipe(
-    retryWhen(errors =>
-      errors.pipe(
-        tap(ignore => console.log(`failed to connect...`)),
-        delayWhen(ignore => timer(1000))
-      )
-    )
-  );
+  });
   return obs$;
 }
 
