@@ -4,12 +4,16 @@ import io.rsocket.RSocketFactory;
 import io.rsocket.transport.netty.server.TcpServerTransport;
 import java.time.Duration;
 import java.util.HashMap;
+import lejos.hardware.Button;
+import lejos.hardware.Key;
+import lejos.hardware.KeyListener;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3TouchSensor;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -51,14 +55,31 @@ public class Main {
     samplerMap.put("INDICATOR", indicatorIntervalMotorSampler);
     samplerMap.put("SPEED", speedIntervalMotorSampler);
 
-    // TODO: create disposable for all sensors -> cleanup work
+    Disposable socket =
+        RSocketFactory.receive()
+            .acceptor(new SocketAcceptorImpl(samplerMap))
+            .transport(TcpServerTransport.create(IP, PORT))
+            .start()
+            .doOnError(throwable -> System.err.println("ERROR IN SOCKET"))
+            .subscribe(nettyContextCloseable -> {});
 
-    RSocketFactory.receive()
-        .acceptor(new SocketAcceptorImpl(samplerMap))
-        .transport(TcpServerTransport.create(IP, PORT))
-        .start()
-        .doOnError(throwable -> System.err.println("ERROR IN SOCKET"))
-        .subscribe();
+    Button.ESCAPE.addKeyListener(
+        new KeyListener() {
+          @Override
+          public void keyPressed(Key k) {
+            ev3ColorSensor.close();
+            ev3TouchSensor.close();
+            indicatorMotor.close();
+            speedMotor.close();
+
+            socket.dispose();
+
+            System.exit(0);
+          }
+
+          @Override
+          public void keyReleased(Key k) {}
+        });
 
     Flux.interval(Duration.ofHours(1000), Schedulers.single()).blockLast(); // do not exit main()
 
