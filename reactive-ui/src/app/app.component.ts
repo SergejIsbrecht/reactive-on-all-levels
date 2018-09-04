@@ -20,6 +20,10 @@ import {
 export class AppComponent implements OnInit, OnDestroy {
   title = 'reactive-ui';
 
+  highBeam$: Observable<HighBeamState>;
+  speed$: Observable<Number>;
+  indicator$: Observable<IndicatorType>;
+
   constructor() {}
 
   ngOnInit() {
@@ -54,20 +58,34 @@ export class AppComponent implements OnInit, OnDestroy {
       retryWhen(errors =>
         errors.pipe(
           tap(ignore => console.log(`failed to connect...`)),
-          delayWhen(val => timer(val * 500))
+          delayWhen(ignore => timer(1000))
         )
       ),
       shareReplay(1)
     );
 
-    const highBeam$ = client$.pipe(
+    this.highBeam$ = client$.pipe(
       switchMap(rSocket => {
         return createTopic$('HIGHBEAMASSIST', 100, rSocket);
       }),
       map((s: string) => HighBeamState[s])
     );
 
-    highBeam$.subscribe(
+    this.indicator$ = client$.pipe(
+      switchMap(rSocket => {
+        return createTopic$('INDICATOR', 100, rSocket);
+      }),
+      map((s: string) => IndicatorType[s])
+    );
+
+    this.speed$ = client$.pipe(
+      switchMap(rSocket => {
+        return createTopic$('SPEED', 100, rSocket);
+      }),
+      map((s: string) => Number(s))
+    );
+
+    this.speed$.subscribe(
       x => console.log('onNext: %s', x),
       e => console.log('onError: %s', e),
       () => console.log('onCompleted'));
@@ -83,10 +101,10 @@ function createTopic$(
 ): Observable<String> {
   const obs$ = Observable.create(observer => {
     rSocket
-    .requestStream({
-      data: topic.toString(),
-      metadata: 'metadata goes here',
-    })
+      .requestStream({
+        data: topic.toString(),
+        metadata: 'metadata goes here'
+      })
       .subscribe({
         onComplete: () => observer.complete(),
         onError: error => observer.error(error),
@@ -97,7 +115,14 @@ function createTopic$(
           subscription.request(initRequest);
         }
       });
-  });
+  }).pipe(
+    retryWhen(errors =>
+      errors.pipe(
+        tap(ignore => console.log(`failed to connect...`)),
+        delayWhen(ignore => timer(1000))
+      )
+    )
+  );
   return obs$;
 }
 
@@ -107,4 +132,10 @@ export enum HighBeamState {
   DISABLED_LIGHT_DETECTED = 'DISABLED_LIGHT_DETECTED',
   DISABLED_SPEED_LIMIT = 'DISABLED_SPEED_LIMIT',
   FAILURE = 'FAILURE'
+}
+
+export enum IndicatorType {
+  OFF = 'OFF',
+  LEFT = 'LEFT',
+  RIGHT = 'RIGHT'
 }
