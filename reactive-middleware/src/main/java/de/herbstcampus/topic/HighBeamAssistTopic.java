@@ -87,8 +87,16 @@ public final class HighBeamAssistTopic implements Topic<HighBeamState> {
         .distinctUntilChanged()
         .doOnNext(tuple -> System.out.println("[TOPIC][HIGH_BEAM_ASSISTANT] tuple: " + tuple))
         // only interested in valid values
-        .filter(t -> t._1.isDefined() && t._2.isDefined() && t._3.isDefined())
-        .map(t -> combine(t._1.get(), t._2.get(), t._3.get()))
+        .map(
+            t -> {
+              boolean allAreValid = t._1.isDefined() && t._2.isDefined() && t._3.isDefined();
+              if (allAreValid) {
+                return combine(t._1.get(), t._2.get(), t._3.get());
+              } else {
+                return HighBeamState.FAILURE;
+              }
+            })
+        .distinctUntilChanged()
         .doOnNext(highBeamState -> System.out.println("[TOPIC][HIGH_BEAM_ASSISTANT] value: " + highBeamState));
   }
 
