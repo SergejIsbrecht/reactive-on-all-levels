@@ -1,3 +1,6 @@
+apply plugin: 'application'
+mainClassName = "de.herbstcampus.infrastructure.Server"
+
 dependencies {
   implementation project(":reactive-domain")
   implementation project(":reactive-sensors")
