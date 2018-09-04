@@ -11,7 +11,7 @@ public final class SpeedTopic implements Topic<Float> {
   private final Flux<Float> speed$;
 
   public SpeedTopic(Sensor<Float> speed) {
-    this.speed$ = Objects.requireNonNull(speed).stream$(SAMPLE_RATE_SPEED).distinctUntilChanged().replay(1).refCount();
+    this.speed$ = Objects.requireNonNull(speed).stream$(SAMPLE_RATE_SPEED).map(value -> value > 0 ? value : 0).distinctUntilChanged().replay(1).refCount();
   }
 
   @Override

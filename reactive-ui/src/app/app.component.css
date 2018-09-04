@@ -1,0 +1,252 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Exo 2', sans-serif;
+}
+body {
+  height: 2000px;
+  width: 2000px;
+}
+.main-area {
+  width: 1920px;
+  height: 722px;
+  background: linear-gradient(
+    45deg,
+    rgb(72, 72, 72) 0%,
+    rgba(13, 13, 13, 1) 46%,
+    rgba(1, 1, 1, 1) 50%,
+    rgba(10, 10, 10, 1) 53%,
+    rgb(72, 72, 72) 76%,
+    rgba(56, 56, 56, 1) 87%,
+    rgba(27, 27, 27, 1) 100%
+  );
+  border: 1px solid black;
+  border-bottom-left-radius: 20rem 5rem;
+  border-bottom-right-radius: 20rem 5rem;
+  border-top-right-radius: 35%;
+  border-top-left-radius: 35%;
+  display: grid;
+  grid-template-columns: 10% 10% 10% auto 10% 10% 10%;
+  grid-template-rows: 25% 25% 25% 25%;
+}
+
+.turn-signal--container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.turn-signal--container--left {
+  grid-column-start: 3;
+  grid-row-start: 2;
+}
+.turn-signal--container--right {
+  grid-column-start: 5;
+  grid-row-start: 2;
+}
+
+.turn-signal--arrow-left {
+  border: 3px solid white;
+  border-bottom: white;
+  border-left: white;
+  transform: rotateZ(-135deg) translateY(30px) translateX(-30px);
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+.turn-signal--arrow-left__body {
+  border: 3px solid white;
+  border-left: white;
+  height: 2rem;
+  width: 3rem;
+  transform: translateX(-33px);
+}
+
+.extra-left {
+  height: 2px;
+  background: white;
+  width: 57px;
+  transform: rotateZ(90deg) translateY(5px);
+}
+
+.turn-signal--arrow-right {
+  border: 3px solid white;
+  border-bottom: white;
+  border-left: white;
+  transform: rotateZ(45deg) translateY(30px) translateX(-30px);
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+.turn-signal--arrow-right__body {
+  border: 3px solid white;
+  border-right: white;
+  height: 2rem;
+  width: 3rem;
+  transform: translateX(33px);
+}
+
+.extra-right {
+  height: 2px;
+  background: white;
+  width: 57px;
+  transform: rotateZ(90deg) translateY(-5px);
+}
+
+.main-kombi {
+  width: 95%;
+  height: 95%;
+  box-shadow: 0 0 1px 1px white;
+  grid-column-start: 4;
+  grid-row-start: 2;
+  grid-row-end: 5;
+  display: flex;
+  flex-direction: column;
+  border-top-right-radius: 50%;
+  border-top-left-radius: 50%;
+  place-self: center;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.kombi-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.kombi-content--light-assistant {
+  width: 7rem;
+  height: 7rem;
+}
+
+.kombi-content--speed {
+  width: 30rem;
+  height: 12rem;
+  font-size: 180px;
+  color: white;
+}
+
+.kombi-content--metric {
+  width: 20rem;
+  height: 6rem;
+  font-size: 80px;
+  color: white;
+}
+
+/* general styling for high beam */
+
+.high-beam--off {
+  transform: translateY(10px);
+}
+
+.lights-down {
+  height: 2px;
+  margin: 0.4rem 0;
+  width: 1.7rem;
+  background: gray;
+  transform: rotateZ(-45deg);
+}
+.high-beam--symbol {
+  height: 2.8rem;
+  width: 3.5rem;
+  border: 2px solid gray;
+  border-top-right-radius: 50%;
+  border-bottom-right-radius: 50%;
+}
+/* general styling for high beam */
+
+/* general styling for high beam with automatic activated*/
+
+.high-beam--symbol__auto {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.high-beam--symbol__auto::before {
+  content: 'A';
+  height: 1rem;
+  width: 1rem;
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  color: gray;
+  font-size: 24px;
+}
+/* general styling for high beam with automatic activated*/
+
+/* classes for high beam disabled concerning speed */
+
+.speed {
+  width: 30px;
+  height: 30px;
+  border: 2px solid white;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -10px;
+  background: black;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.locator {
+  height: 2px;
+  margin: 0.4rem 0;
+  width: 14px;
+  background: red;
+  transform: rotateZ(-45deg) translateX(6px);
+}
+/* classes for high beam disabled concerning speed */
+
+/* classes for high beam disabled concerning lights */
+
+.high-beam--small {
+  position: absolute;
+  bottom: -5px;
+  height: 1.1rem;
+  width: 1.5rem;
+  border: 1px solid red;
+  right: 0px;
+  border-top-left-radius: 50%;
+  border-bottom-left-radius: 50%;
+  background: black;
+}
+
+.lights-up--small {
+  height: 2px;
+  margin: 0.1rem 0;
+  width: 0.5rem;
+  background: red;
+  transform: translateX(25px) translateY(2px);
+}
+
+/* classes for high beam disabled concerning lights */
+
+/* classes for high beam enabled */
+
+.lights-up {
+  height: 3px;
+  margin: 0.6rem 0.4rem;
+  width: 1.7rem;
+  background: royalblue;
+}
+
+.high-beam--symbol__auto--on::before {
+  content: 'A';
+  height: 1rem;
+  width: 1rem;
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  color: royalblue;
+  font-size: 24px;
+}
+.high-beam--symbol__auto--on {
+  border: 2px solid royalblue;
+}
+
+/* classes for high beam enabled */

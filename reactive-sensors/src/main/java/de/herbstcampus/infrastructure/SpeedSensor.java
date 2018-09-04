@@ -20,8 +20,9 @@ public final class SpeedSensor implements Sensor<Float> {
         .stream$(sampleRate)
         .map(
             motorEvent -> {
-              System.out.println("[SENSOR][SpeedSensor] " + motorEvent.tachoCount());
-              return motorEvent.tachoCount() * 3f;
+              float value = motorEvent.tachoCount() * 4f;
+              System.out.println("[SENSOR][SpeedSensor] " + value);
+              return value;
             });
   }
 }

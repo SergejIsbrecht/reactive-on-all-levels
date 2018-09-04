@@ -1,4 +1,76 @@
-<div class="card card-block">
-  <h4 class="card-title">AsyncPipe</h4>
-  <p class="card-text">{{ observable$ | async }}</p>
- </div>
+<div class="main-area">
+  <div *ngIf="(indicator$ | async) === 'LEFT'" class="turn-signal--container turn-signal--container--left">
+    <div class="turn-signal--arrow-left"></div>
+    <div class="extra-left"></div>
+    <div class="turn-signal--arrow-left__body"></div>
+  </div>
+  <div class="main-kombi">
+    <div class="kombi-content kombi-content--light-assistant">
+
+
+      <!-- HIGH BEAM OFF -->
+      <ng-container *ngIf="(highBeam$ | async) === 'DISABLED'">
+        <div class="high-beam--off">
+          <div class="lights-down lights-down__1"></div>
+          <div class="lights-down lights-down__2"></div>
+          <div class="lights-down lights-down__3"></div>
+        </div>
+        <div class="high-beam--symbol"></div>
+      </ng-container>
+      <!-- HIGH BEAM OFF -->
+
+      <!-- HIGH BEAM OFF -- AUTO -- SPEED -->
+      <ng-container *ngIf="(highBeam$ | async) === 'DISABLED_SPEED_LIMIT'">
+        <div class="high-beam--off high-beam__auto--off--speed">
+          <div class="lights-down lights-down__1"></div>
+          <div class="lights-down lights-down__2"></div>
+          <div class="lights-down lights-down__3"></div>
+        </div>
+        <div class="high-beam--symbol high-beam--symbol__auto">
+          <div class="speed">
+            <div class="locator"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- HIGH BEAM OFF -- AUTO -- SPEED -->
+
+      <!-- HIGH BEAM ON -- AUTO -->
+      <ng-container *ngIf="(highBeam$ | async) === 'ENABLED'">
+        <div class="high-beam--on high-beam__auto--on">
+          <div class="lights-up lights-up__1"></div>
+          <div class="lights-up lights-up__2"></div>
+          <div class="lights-up lights-up__3"></div>
+        </div>
+        <div class="high-beam--symbol high-beam--symbol__auto high-beam--symbol__auto--on"></div>
+      </ng-container>
+
+      <!-- HIGH BEAM ON -- AUTO -->
+
+      <!-- HIGH BEAM OFF -- AUTO -- LIGHTS -->
+      <ng-container *ngIf="(highBeam$ | async) === 'DISABLED_LIGHT_DETECTED'">
+        <div class="high-beam--off high-beam__auto--off--light">
+          <div class="lights-down lights-down__1"></div>
+          <div class="lights-down lights-down__2"></div>
+          <div class="lights-down lights-down__3"></div>
+        </div>
+        <div class="high-beam--symbol high-beam--symbol__auto">
+          <div class="high-beam--small">
+            <div class="lights-up--small"></div>
+            <div class="lights-up--small"></div>
+            <div class="lights-up--small"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- HIGH BEAM OFF -- AUTO -- LIGHTS -->
+    </div>
+    <div class="kombi-content kombi-content--speed">{{speed$ | async }}</div>
+    <div class="kombi-content kombi-content--metric">km/h</div>
+  </div>
+  <div *ngIf="(indicator$ | async) === 'RIGHT'" class="turn-signal--container turn-signal--container--right">
+    <div class="turn-signal--arrow-right__body"></div>
+    <div class="extra-right"></div>
+    <div class="turn-signal--arrow-right"></div>
+  </div>
+</div>
