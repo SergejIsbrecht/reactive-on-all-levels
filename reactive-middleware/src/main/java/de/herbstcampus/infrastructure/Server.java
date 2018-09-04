@@ -41,7 +41,7 @@ public final class Server {
         RSocketFactory.receive() //
             .errorConsumer(Throwable::printStackTrace)
             .acceptor(socketAcceptor)
-            .transport(WebsocketServerTransport.create("localhost", 6666))
+            .transport(WebsocketServerTransport.create("localhost", 8042))
             .start()
             .block();
 
