@@ -250,3 +250,13 @@ body {
 }
 
 /* classes for high beam enabled */
+
+.blink_me {
+  animation: blinker 1s cubic-bezier(1,0,0,1) infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}

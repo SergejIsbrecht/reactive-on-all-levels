@@ -68,10 +68,7 @@ export class AppComponent implements OnInit, OnDestroy {
       switchMap(rSocket => {
         return createTopic$('INDICATOR', 100, rSocket);
       }),
-      map((s: string) => IndicatorType[s]),
-      switchMap(s =>
-        interval(500).pipe(map(i => i % 2 ? s : IndicatorType.OFF))
-      )
+      map((s: string) => IndicatorType[s])
     );
 
     this.speed$ = client$.pipe(
