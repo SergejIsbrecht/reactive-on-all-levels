@@ -61,7 +61,8 @@ export class AppComponent implements OnInit, OnDestroy {
       switchMap(rSocket => {
         return createTopic$('HIGHBEAMASSIST', 100, rSocket);
       }),
-      map((s: string) => HighBeamState[s])
+      map((s: string) => HighBeamState[s]),
+      shareReplay(1)
     );
 
     this.indicator$ = client$.pipe(
@@ -71,19 +72,16 @@ export class AppComponent implements OnInit, OnDestroy {
       map((s: string) => IndicatorType[s]),
       switchMap(s =>
         interval(500).pipe(map(i => i % 2 ? s : IndicatorType.OFF))
-      )
+      ),
+      shareReplay(1)
     );
 
     this.speed$ = client$.pipe(
       switchMap(rSocket => {
         return createTopic$('SPEED', 100, rSocket);
-      })
+      }),
+      shareReplay(1)
     );
-
-    this.speed$.subscribe(
-      x => console.log('onNext: %s', x),
-      e => console.log('onError: %s', e),
-      () => console.log('onCompleted'));
   }
 
   ngOnDestroy() {
