@@ -1,5 +1,5 @@
 <div class="main-area">
-  <div *ngIf="(indicator$ | async) === 'LEFT'" class="turn-signal--container turn-signal--container--left">
+  <div *ngIf="(indicator$ | async) === 'LEFT'" class="turn-signal--container turn-signal--container--left blink_me">
     <div class="turn-signal--arrow-left"></div>
     <div class="extra-left"></div>
     <div class="turn-signal--arrow-left__body"></div>
@@ -68,7 +68,7 @@
     <div class="kombi-content kombi-content--speed">{{speed$ | async }}</div>
     <div class="kombi-content kombi-content--metric">km/h</div>
   </div>
-  <div *ngIf="(indicator$ | async) === 'RIGHT'" class="turn-signal--container turn-signal--container--right">
+  <div *ngIf="(indicator$ | async) === 'RIGHT'" class="turn-signal--container turn-signal--container--right blink_me">
     <div class="turn-signal--arrow-right__body"></div>
     <div class="extra-right"></div>
     <div class="turn-signal--arrow-right"></div>
