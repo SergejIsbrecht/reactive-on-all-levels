@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {CarService} from './car.service';
-import {combineLatest, interval, merge, Observable, of} from 'rxjs';
+import {combineLatest, merge, Observable} from 'rxjs';
 import {IndicatorType} from './indicatorType';
 import {HighBeamState} from './highBeamState';
-import {distinctUntilChanged, map, scan, switchMap} from 'rxjs/internal/operators';
+import {distinctUntilChanged, map, scan} from 'rxjs/internal/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,7 @@ import {distinctUntilChanged, map, scan, switchMap} from 'rxjs/internal/operator
 export class CarKeyboardService implements CarService {
 
   private readonly highBeam$: Observable<HighBeamState>;
-  private readonly speed$: Observable<string>;
+  private readonly speed$: Observable<number>;
   private readonly indicator$: Observable<IndicatorType>;
 
   constructor() {
@@ -20,24 +20,30 @@ export class CarKeyboardService implements CarService {
       this.createPressAndHoldKeyboardListenerObservable(39, IndicatorType.RIGHT, IndicatorType.OFF))
       .pipe(distinctUntilChanged());
 
-    const speedNumber$ = merge(
-      this.createPressAndHoldKeyboardListenerObservable(38, 'accelerate', 'nothing'),
-      this.createPressAndHoldKeyboardListenerObservable(40, 'brake', 'nothing'))
+    const accelerate$ = new Observable<number>(emitter => {
+      emitter.next(0);
+      window.addEventListener('keydown', event => {
+        if (event.keyCode === 38) {
+          emitter.next(50);
+        }
+      });
+    });
+
+    const break$ = new Observable<number>(emitter => {
+      emitter.next(0);
+      window.addEventListener('keydown', event => {
+        if (event.keyCode === 40) {
+          emitter.next(-50);
+        }
+      });
+    });
+
+    this.speed$ = merge(
+      accelerate$,
+      break$)
       .pipe(
-        distinctUntilChanged(),
-        switchMap(mode => {
-          if (mode === 'accelerate') {
-            return interval(300).pipe(map(i => 50));
-          } else if (mode === 'brake') {
-            return interval(300).pipe(map(i => -50));
-          } else if (mode === 'nothing') {
-            return of(0);
-          }
-        }),
         scan((acc, curr) => acc + curr, 0)
       );
-
-    this.speed$ = speedNumber$.pipe(map(value => String(value)));
 
     const highBeamActivated$ = new Observable<boolean>(emitter => {
       let highBeamActivated = false;
@@ -52,7 +58,7 @@ export class CarKeyboardService implements CarService {
 
     const lightDetected$ = this.createPressAndHoldKeyboardListenerObservable(76, true, false);
 
-    this.highBeam$ = combineLatest(highBeamActivated$, lightDetected$, speedNumber$)
+    this.highBeam$ = combineLatest(highBeamActivated$, lightDetected$, this.speed$)
       .pipe(
         map(([highBeamActivated, lightDetected, speed]) => {
           if (!highBeamActivated) {
@@ -79,7 +85,7 @@ export class CarKeyboardService implements CarService {
     return this.indicator$;
   }
 
-  speed(): Observable<string> {
+  speed(): Observable<number> {
     return this.speed$;
   }
 

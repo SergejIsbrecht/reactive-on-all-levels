@@ -14,7 +14,7 @@ import {Responder} from 'rsocket-types';
 export class CarRestService implements CarService {
 
   private readonly highBeam$: Observable<HighBeamState>;
-  private readonly speed$: Observable<string>;
+  private readonly speed$: Observable<number>;
   private readonly indicator$: Observable<IndicatorType>;
 
   constructor() {
@@ -67,6 +67,7 @@ export class CarRestService implements CarService {
       switchMap(rSocket => {
         return createTopic$('SPEED', 100, rSocket);
       }),
+      map(Number),
       shareReplay(1)
     );
     this.indicator$ = client$.pipe(
@@ -86,7 +87,7 @@ export class CarRestService implements CarService {
     return this.indicator$;
   }
 
-  speed(): Observable<string> {
+  speed(): Observable<number> {
     return this.speed$;
   }
 }

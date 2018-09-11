@@ -5,7 +5,7 @@ import {HighBeamState} from './highBeamState';
 export interface CarService {
   highBeam(): Observable<HighBeamState>;
 
-  speed(): Observable<string>;
+  speed(): Observable<number>;
 
   indicator(): Observable<IndicatorType>;
 }
