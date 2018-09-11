@@ -74,9 +74,6 @@ export class CarRestService implements CarService {
         return createTopic$('INDICATOR', 100, rSocket);
       }),
       map((s: string) => IndicatorType[s]),
-      switchMap(s =>
-        interval(500).pipe(map(i => i % 2 ? s : IndicatorType.OFF))
-      ),
       shareReplay(1)
     );
   }

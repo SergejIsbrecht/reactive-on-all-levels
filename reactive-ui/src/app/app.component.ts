@@ -1,8 +1,9 @@
 import {Component} from '@angular/core';
-import {Observable} from 'rxjs';
+import {interval, Observable} from 'rxjs';
 import {HighBeamState} from './highBeamState';
 import {IndicatorType} from './indicatorType';
-import {CarRestService} from './car-rest.service';
+import {CarKeyboardService} from './car-keyboard.service';
+import {map, switchMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -14,9 +15,13 @@ export class AppComponent {
   speed$: Observable<string>;
   indicator$: Observable<IndicatorType>;
 
-  constructor(carService: CarRestService) {
+  constructor(carService: CarKeyboardService) {
     this.highBeam$ = carService.highBeam();
     this.speed$ = carService.speed();
-    this.indicator$ = carService.indicator();
+    this.indicator$ = carService.indicator().pipe(
+      switchMap(s =>
+        interval(500).pipe(map(i => (i + 1) % 2 ? s : IndicatorType.OFF))
+      )
+    );
   }
 }
