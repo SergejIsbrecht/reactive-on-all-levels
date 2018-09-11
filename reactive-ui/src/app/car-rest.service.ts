@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {CarService} from './car.service';
 import {IndicatorType} from './indicatorType';
-import {interval, Observable, timer} from 'rxjs';
+import {Observable, timer} from 'rxjs';
 import {HighBeamState} from './highBeamState';
 import {delayWhen, map, retryWhen, shareReplay, switchMap, tap} from 'rxjs/operators';
 import RSocketWebSocketClient from 'rsocket-websocket-client';

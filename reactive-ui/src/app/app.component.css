@@ -6,6 +6,10 @@ body {
   height: 2000px;
   width: 2000px;
 }
+a {
+  text-decoration: none;
+  color: black;
+}
 .main-area {
   width: 1920px;
   height: 722px;
@@ -277,3 +281,17 @@ body {
 }
 
 /* classes for high beam enabled */
+.serviceSelector {
+  background-color: darkgrey;
+  color: white;
+  padding: 12px 10px;
+  text-align: center;
+  display: inline-block;
+  margin: 3px;
+  width: 88px;
+}
+
+.serviceSelector.selected {
+  text-decoration: underline;
+  background-color: dimgrey;
+}

@@ -1,4 +1,14 @@
 <div class="main-area">
+  <div>
+    <a [class.selected]="serviceBackend==='keyboard'" (click)="serviceBackend='keyboard';updateServiceBackend()" href="#" class="serviceSelector">Keyboard</a>
+    <a [class.selected]="serviceBackend==='rest'" (click)="serviceBackend='rest';updateServiceBackend()" href="#" class="serviceSelector">REST</a>
+    <ul *ngIf="serviceBackend==='keyboard'">
+      <li>press ↑ ↓ for acceleration and break</li>
+      <li>press ← → for indicators</li>
+      <li>press 'h' to activate/deactivate auto high beam</li>
+      <li>press and hold 'l' to activate light detection</li>
+    </ul>
+  </div>
   <div *ngIf="(indicator$ | async) === 'LEFT'" class="turn-signal--container turn-signal--container--left">
     <div class="turn-signal--arrow-left"></div>
     <div class="extra-left"></div>
