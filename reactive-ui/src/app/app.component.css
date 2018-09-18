@@ -38,20 +38,18 @@ a {
   grid-column-start: 1;
   grid-column-end: 3;
   grid-row: 3;
-  border: 1px solid #2196f3;
   border-radius: 5px;
   padding: 1px;
 }
 
 .config-container--area {
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 
 .option {
   margin: 1rem;
-  color: white;
+  color: grey;
   font-size: 20px;
 }
 
@@ -336,7 +334,7 @@ a {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #2196f3;
+  background-color: lightgrey;
   -webkit-transition: 0.4s;
   transition: 0.4s;
 }
@@ -348,17 +346,17 @@ a {
   width: 26px;
   left: 4px;
   bottom: 4px;
-  background-color: white;
+  background-color: grey;
   -webkit-transition: 0.4s;
   transition: 0.4s;
 }
 
 input:checked + .slider {
-  background-color: #2196f3;
+  background-color: lightgrey;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196f3;
+  box-shadow: 0 0 1px lightgrey;
 }
 
 input:checked + .slider:before {
@@ -379,5 +377,5 @@ input:checked + .slider:before {
 }
 
 .feature--list li {
-  color: white;
+  color: grey;
 }

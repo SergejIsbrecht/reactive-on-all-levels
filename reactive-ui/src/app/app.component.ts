@@ -1,12 +1,12 @@
-import { Component, Injector } from '@angular/core';
-import { interval, Observable } from 'rxjs';
-import { HighBeamState } from './highBeamState';
-import { IndicatorType } from './indicatorType';
-import { switchMap } from 'rxjs/operators';
-import { CarKeyboardService } from './car-keyboard.service';
-import { CarService } from './car.service';
-import { CarRestService } from './car-rest.service';
-import { map, pairwise, takeWhile } from 'rxjs/internal/operators';
+import {Component, Injector} from '@angular/core';
+import {interval, Observable} from 'rxjs';
+import {HighBeamState} from './highBeamState';
+import {IndicatorType} from './indicatorType';
+import {switchMap} from 'rxjs/operators';
+import {CarKeyboardService} from './car-keyboard.service';
+import {CarService} from './car.service';
+import {CarRestService} from './car-rest.service';
+import {map, pairwise, takeWhile} from 'rxjs/internal/operators';
 
 @Component({
   selector: 'app-root',
